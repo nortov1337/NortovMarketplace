@@ -580,15 +580,42 @@ export function Seller({
   );
 }
 export function Admin({ data, go, action }) {
-  const [tab, setTab] = useState("products");
+  const [tab, setTab] = useState("reports");
+  const [search, setSearch] = useState("");
   if (!data) return <p className="loading">Loading data...</p>;
+  const term = search.trim().toLowerCase();
+  const entries = data[tab].filter((entry) =>
+    Object.values(entry).some((value) =>
+      String(value ?? "")
+        .toLowerCase()
+        .includes(term),
+    ),
+  );
   return (
     <>
       <Breadcrumb go={go}>Site management</Breadcrumb>
       <div className="page-heading">
         <span className="eyebrow">SITE MANAGEMENT</span>
-        <h1>Moderation</h1>
-        <p>Products, users and reviews.</p>
+        <h1>Administration</h1>
+        <p>Monitor the marketplace and manage moderation.</p>
+      </div>
+      <div className="dashboard-stats admin-stats">
+        <div>
+          <span>Users</span>
+          <strong>{data.stats.users}</strong>
+        </div>
+        <div>
+          <span>Active products</span>
+          <strong>{data.stats.products}</strong>
+        </div>
+        <div>
+          <span>Orders</span>
+          <strong>{data.stats.orders}</strong>
+        </div>
+        <div>
+          <span>Open complaints</span>
+          <strong>{data.stats.open_reports}</strong>
+        </div>
       </div>
       <div className="tabs">
         {[
@@ -596,6 +623,8 @@ export function Admin({ data, go, action }) {
           ["products", "Goods"],
           ["users", "Users"],
           ["reviews", "Reviews"],
+          ["orders", "Orders"],
+          ["audit", "Activity log"],
         ].map(([id, name]) => (
           <button
             className={tab === id ? "active" : ""}
@@ -606,18 +635,27 @@ export function Admin({ data, go, action }) {
           </button>
         ))}
       </div>
+      <label className="field admin-search">
+        <span>Search {tab}</span>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search the latest records"
+        />
+      </label>
+      <p className="muted">Showing up to 500 latest records in each section.</p>
       <div className="admin-list">
-        {tab === "reports" && (
-          <ReportList reports={data.reports} action={action} />
-        )}{" "}
+        {tab === "reports" && <ReportList reports={entries} action={action} />}{" "}
         {tab === "products" &&
-          data.products.map((p) => (
+          entries.map((p) => (
             <div className="admin-row" key={p.id}>
               <div>
                 <b>{p.name}</b>
                 <p>
                   {p.seller} · {money(p.price)} ·{" "}
-                  {p.moderation === "hidden" ? "Hidden" : "Allowed"}
+                  {p.moderation === "hidden" ? "Hidden" : "Allowed"} ·{" "}
+                  {p.active ? "Published" : "Archived"}
                 </p>
               </div>
               <button
@@ -635,7 +673,7 @@ export function Admin({ data, go, action }) {
             </div>
           ))}
         {tab === "users" &&
-          data.users.map((u) => (
+          entries.map((u) => (
             <div className="admin-row" key={u.id}>
               <div>
                 <b>{u.name}</b>
@@ -652,6 +690,11 @@ export function Admin({ data, go, action }) {
                 <button
                   className="button secondary small"
                   onClick={() =>
+                    window.confirm(
+                      u.suspended
+                        ? "Unblock this user?"
+                        : "Block this user and end their sessions?",
+                    ) &&
                     action("adminUser", { id: u.id, suspended: !u.suspended })
                   }
                 >
@@ -661,7 +704,7 @@ export function Admin({ data, go, action }) {
             </div>
           ))}
         {tab === "reviews" &&
-          data.reviews.map((r) => (
+          entries.map((r) => (
             <div className="admin-row" key={r.id}>
               <div>
                 <b>
@@ -682,9 +725,35 @@ export function Admin({ data, go, action }) {
               </button>
             </div>
           ))}
-        {data[tab]?.length === 0 && (
-          <p className="muted">It’s empty here yet.</p>
-        )}
+        {tab === "orders" &&
+          entries.map((order) => (
+            <div className="admin-row" key={order.id}>
+              <div>
+                <b>
+                  Order #{order.id} · {money(order.total)}
+                </b>
+                <p>
+                  {order.buyer} · {date(order.created_at)} · {order.item_count}{" "}
+                  items · {order.active_items} in progress
+                </p>
+              </div>
+            </div>
+          ))}
+        {tab === "audit" &&
+          entries.map((entry) => (
+            <div className="admin-row" key={entry.id}>
+              <div>
+                <b>
+                  {entry.admin} · {entry.action}
+                </b>
+                <p>
+                  {entry.target_type} #{entry.target_id} · {entry.detail} ·{" "}
+                  {date(entry.created_at)}
+                </p>
+              </div>
+            </div>
+          ))}
+        {entries.length === 0 && <p className="muted">No records found.</p>}
       </div>
     </>
   );

@@ -1195,6 +1195,13 @@ img {
   padding: 18px 0;
   border-bottom: 1px solid var(--line);
 }
+.admin-search {
+  max-width: 420px;
+  margin: 20px 0 8px;
+}
+.admin-stats {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
 .admin-row p {
   font-size: 13px;
   color: #8c838e;

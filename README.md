@@ -9,6 +9,7 @@ A Next.js marketplace for customers and independent sellers. Buyers and sellers 
 - Seller dashboard for products, inventory, images and orders.
 - Orders with price and stock checks, cancellations, tracking and duplicate-submission protection.
 - Order messages, reviews, product reports and administrator moderation.
+- Administration dashboard with order overview, moderation search and an audit log of administrative actions.
 
 Prices are displayed in Russian rubles (RUB). Automated delivery integrations are not included.
 
@@ -53,9 +54,13 @@ Without SMTP, password recovery emails are unavailable. If verification is requi
 
 Register an account, then run `npm run admin -- email@example.com` on the server with the same DATA_DIR as the application. This grants administrator rights to an existing account. Restrict server access: the command does not require confirmation through the web interface.
 
+The administration screen shows overall counts and the latest 500 records in each section. Search applies to those loaded records. Moderation actions are recorded in the database with the administrator, target, action and time. Administrative access includes personal information, so grant it only to trusted operators.
+
 ## Docker
 
 Copy .env.example to .env, configure APP_URL and run `docker compose up --build -d`. Compose binds to 127.0.0.1:3000. Configure an HTTPS reverse proxy and the correct APP_URL for public access. Preserve the marketplace-data volume across updates. To grant administrator rights in the container, run `docker compose exec marketplace npm run admin -- email@example.com`.
+
+`GET /api/health` returns a minimal readiness status and checks database connectivity. Docker Compose uses this endpoint for its health check; configure external monitoring to alert on failures. A healthy response does not verify SMTP, backups or available disk space.
 
 ## Backups
 

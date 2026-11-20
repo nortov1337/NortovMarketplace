@@ -346,10 +346,29 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     "image/webp",
   );
   assert.equal((await get("admin", seller.cookie)).status, 403);
+  assert.equal(
+    (
+      await post(
+        "adminProduct",
+        { id: p.id, moderation: "hidden" },
+        buyer.cookie,
+      )
+    ).status,
+    403,
+  );
+  const health = await fetch(base + "/api/health");
+  assert.equal(health.status, 200);
+  assert.deepEqual(await health.json(), { status: "ok" });
   const db = new DatabaseSync(path.join(dir, "marketplace.sqlite"));
   db.prepare("UPDATE users SET is_admin=1 WHERE id=?").run(seller.body.user.id);
   db.close();
-  const reports = (await get("admin", seller.cookie)).body.reports;
+  const overview = (await get("admin", seller.cookie)).body;
+  assert.equal(overview.stats.users, 3);
+  assert.equal(overview.stats.open_reports, 1);
+  assert.ok(overview.stats.orders > 0);
+  assert.ok(overview.orders.some((order) => order.buyer === "Buyer"));
+  assert.equal(overview.audit.length, 0);
+  const reports = overview.reports;
   assert.equal(reports.length, 1);
   assert.equal(
     (
@@ -393,6 +412,24 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     200,
   );
   assert.equal((await get("orders", buyer.cookie)).status, 401);
+  const moderated = (await get("admin", seller.cookie)).body;
+  assert.equal(moderated.stats.open_reports, 0);
+  assert.deepEqual(
+    moderated.audit.map((entry) => entry.action),
+    ["adminUser", "adminProduct", "adminProduct", "adminReport"],
+  );
+  assert.equal(moderated.audit[0].target_id, buyer.body.user.id);
+  assert.equal(
+    (
+      await post(
+        "adminProduct",
+        { id: 999999, moderation: "hidden" },
+        seller.cookie,
+      )
+    ).status,
+    404,
+  );
+  assert.equal((await get("admin", seller.cookie)).body.audit.length, 4);
 });
 
 test("email verification and password recovery invalidate old sessions", async (t) => {
