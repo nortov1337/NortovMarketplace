@@ -17,7 +17,7 @@ export default function Home() {
   const [page, setPage] = useState("catalog"),
     [id, setId] = useState(null),
     [search, setSearch] = useState(""),
-    [category, setCategory] = useState("Все"),
+    [category, setCategory] = useState("All"),
     [sort, setSort] = useState("new");
   const [user, setUser] = useState(null),
     [ready, setReady] = useState(false),
@@ -40,7 +40,7 @@ export default function Home() {
     const query = url(next, identifier);
     if (window.location.pathname + window.location.search === query) return;
     if (next === "favorites") {
-      setCategory("Все");
+      setCategory("All");
       setSearch("");
     }
     window.history.pushState({}, "", query);
@@ -90,7 +90,7 @@ export default function Home() {
       }),
     ]).then((results) => {
       if (results[0].status === "rejected")
-        notify("Не удалось загрузить каталог. Обновите страницу.", "error");
+        notify("Failed to load catalog. Refresh the page.", "error");
       setReady(true);
     });
     return () => window.removeEventListener("popstate", readLocation);
@@ -177,14 +177,14 @@ export default function Home() {
       go(returnTo === "admin" && !result.user.is_admin ? "account" : returnTo);
       notify(
         settled.some((x) => x.status === "rejected")
-          ? "Вы вошли. Некоторые товары из гостевой корзины недоступны."
-          : "Вы вошли в аккаунт",
+          ? "Signed in. Some items from your guest cart are unavailable."
+          : "You are logged in",
       );
       return true;
     }
     if (result.verificationPending) {
       setAuthMode("login");
-      notify("Проверьте почту: мы отправили ссылку для подтверждения.");
+      notify("Check your email: we have sent a confirmation link.");
       return true;
     }
     if (mode === "verify" || mode === "reset") {
@@ -193,12 +193,12 @@ export default function Home() {
       window.history.replaceState({}, "", url("auth"));
       notify(
         mode === "verify"
-          ? "Почта подтверждена. Теперь можно войти."
-          : "Пароль изменён. Войдите с новым паролем.",
+          ? "Email confirmed. Now you can log in."
+          : "Password changed. Sign in with your new password.",
       );
       return true;
     }
-    notify("Если адрес зарегистрирован, письмо будет отправлено.");
+    notify("If the address is registered, an email will be sent.");
     return true;
   };
   const logout = async () => {
@@ -209,7 +209,7 @@ export default function Home() {
     setFavorites([]);
     setReturnTo("account");
     go("catalog");
-    notify("Вы вышли из аккаунта");
+    notify("You are logged out of your account");
   };
   const updateCart = async (id, quantity) => {
     if (user) {
@@ -250,16 +250,16 @@ export default function Home() {
     await reloadProducts();
     go("orders");
     notify(
-      "Заказ № " +
+      "Order № " +
         r.orderId +
-        " оформлен. Свяжитесь с продавцом в карточке заказа.",
+        " decorated Contact the seller in the order card.",
     );
     return true;
   };
   const changeStatus = async (itemId, status, context, tracking = "") => {
     if (
       status === "cancelled" &&
-      !window.confirm("Отменить этот товар в заказе?")
+      !window.confirm("Can I cancel this item in my order?")
     )
       return;
     const r = await action("status", { id: itemId, status, tracking });
@@ -267,14 +267,14 @@ export default function Home() {
     await reloadProducts();
     if (context === "orders") setOrders(await api("orders"));
     else setSeller(await api("seller"));
-    notify("Статус обновлён");
+    notify("Status updated");
   };
   const saveProduct = async (product) => {
     const r = await action("product", product);
     if (!r) return false;
     setSeller(await api("seller"));
     await reloadProducts();
-    notify("Товар сохранён");
+    notify("Item saved");
     return true;
   };
   const saveStore = async (profile) => {
@@ -282,7 +282,7 @@ export default function Home() {
     if (!r) return false;
     setSeller(await api("seller"));
     await reloadProducts();
-    notify("Магазин сохранён");
+    notify("Store saved");
     return true;
   };
   const changeActive = async (p) => {
@@ -290,7 +290,7 @@ export default function Home() {
     if (r) {
       setSeller(await api("seller"));
       await reloadProducts();
-      notify("Статус товара обновлён");
+      notify("Product status updated");
     }
   };
   const upload = async (file) => {
@@ -311,13 +311,13 @@ export default function Home() {
     if (!r) return false;
     setDetail(await api("product", null, { id }));
     await reloadProducts();
-    notify("Отзыв опубликован");
+    notify("Review published");
     return true;
   };
   const submitReport = async (id, reason) => {
     const r = await action("report", { id, reason });
     if (!r) return false;
-    notify("Жалоба отправлена модератору");
+    notify("The complaint has been sent to the moderator");
     return true;
   };
   const sendMessage = async (id, message) => {
@@ -334,10 +334,10 @@ export default function Home() {
       setCart({});
       setFavorites([]);
       go("auth");
-      notify("Пароль обновлён. Войдите снова.");
+      notify("Password updated. Please sign in again.");
     } else {
       setUser((await api("me")).user);
-      notify("Изменения сохранены");
+      notify("Changes saved");
     }
     return true;
   };
@@ -346,7 +346,7 @@ export default function Home() {
     if (r) {
       setAdmin(await api("admin"));
       await reloadProducts();
-      notify("Изменения сохранены");
+      notify("Changes saved");
     }
   };
   const count = Object.values(cart).reduce((sum, n) => sum + Number(n), 0);
@@ -367,7 +367,7 @@ export default function Home() {
           dismiss={() => setAlert(null)}
         />
         {!ready ? (
-          <p className="loading">Загружаем Nortov…</p>
+          <p className="loading">Loading Nortov…</p>
         ) : (
           <>
             {page === "catalog" && (
@@ -476,7 +476,7 @@ export default function Home() {
               (orders ? (
                 <Orders {...orders} go={go} changeStatus={changeStatus} />
               ) : (
-                <p className="loading">Загружаем заказы…</p>
+                <p className="loading">Loading orders...</p>
               ))}
             {page === "chat" && user && (
               <Chat

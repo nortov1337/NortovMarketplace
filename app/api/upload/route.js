@@ -15,13 +15,13 @@ export async function POST(req) {
     );
     assert(
       rateLimit("upload:" + user.id, 100, 3600_000),
-      "Слишком много загрузок",
+      "Too many downloads",
       429,
     );
     const length = Number(req.headers.get("content-length") || 0);
     assert(
       length > 0 && length <= 5_500_000,
-      "Файл слишком большой или размер не указан",
+      "The file is too large or the size is not specified",
       413,
     );
     const form = await req.formData();
@@ -31,7 +31,7 @@ export async function POST(req) {
         typeof file.arrayBuffer === "function" &&
         file.size > 0 &&
         file.size <= 5_000_000,
-      "Выберите изображение размером до 5 МБ",
+      "Select an image up to 5 MB in size",
     );
     const bytes = Buffer.from(await file.arrayBuffer());
     const input = sharp(bytes, {
@@ -41,7 +41,7 @@ export async function POST(req) {
     const metadata = await input.metadata();
     assert(
       ["jpeg", "png", "webp"].includes(metadata.format),
-      "Поддерживаются JPEG, PNG и WebP",
+      "Supported JPEG, PNG And WebP",
     );
     const image = await input
       .rotate()
@@ -66,7 +66,7 @@ export async function POST(req) {
       );
     console.error("Upload error:", error.message);
     return NextResponse.json(
-      { error: "Не удалось обработать изображение" },
+      { error: "Failed to process image" },
       { status: 400 },
     );
   }

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 export function ReportForm({ productId, submitReport }) {
   const [open, setOpen] = useState(false),
@@ -10,7 +10,7 @@ export function ReportForm({ productId, submitReport }) {
         className="text-button report-button"
         onClick={() => setOpen(true)}
       >
-        Пожаловаться на товар
+        Complain about a product
       </button>
     );
   return (
@@ -26,9 +26,9 @@ export function ReportForm({ productId, submitReport }) {
         setBusy(false);
       }}
     >
-      <h3>Жалоба на товар</h3>
+      <h3>Complaint about the product</h3>
       <label className="field">
-        <span>Расскажите, что не так</span>
+        <span>Tell me what’s wrong</span>
         <textarea
           required
           minLength={5}
@@ -39,14 +39,14 @@ export function ReportForm({ productId, submitReport }) {
       </label>
       <div className="row-buttons">
         <button className="button secondary" disabled={busy}>
-          Отправить
+          Send
         </button>
         <button
           type="button"
           className="button ghost"
           onClick={() => setOpen(false)}
         >
-          Отмена
+          Cancel
         </button>
       </div>
     </form>
@@ -58,7 +58,7 @@ export function ReportList({ reports, action }) {
       <div>
         <b>
           {report.product_name} ·{" "}
-          {report.status === "open" ? "Новая жалоба" : "Рассмотрена"}
+          {report.status === "open" ? "New complaint" : "Considered"}
         </b>
         <p>
           {report.reporter}: {report.reason}
@@ -75,7 +75,7 @@ export function ReportList({ reports, action }) {
             })
           }
         >
-          {report.moderation === "hidden" ? "Разрешить товар" : "Скрыть товар"}
+          {report.moderation === "hidden" ? "Allow product" : "Hide product"}
         </button>
         <button
           className="button secondary small"
@@ -86,7 +86,7 @@ export function ReportList({ reports, action }) {
             })
           }
         >
-          {report.status === "open" ? "Рассмотрено" : "Открыть снова"}
+          {report.status === "open" ? "Reviewed" : "Open again"}
         </button>
       </div>
     </div>

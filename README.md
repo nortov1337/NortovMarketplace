@@ -1,30 +1,29 @@
 ﻿# Nortov Marketplace
 
-Маркетплейс на Next.js для покупателей и независимых продавцов. Каталог, магазины, заказы и переписка работают без подключения онлайн-оплаты: покупатель и продавец согласовывают получение и расчёт самостоятельно.
+A Next.js marketplace for customers and independent sellers. Buyers and sellers arrange payment and delivery directly; online payments are not integrated.
 
-## Что есть в проекте
+## Features
 
-- Регистрация, вход, изменение пароля; подтверждение почты и восстановление доступа через SMTP при его настройке.
-- Каталог, поиск, фильтры, сортировка, отдельные страницы товаров и магазинов, избранное и корзина. Для вошедших пользователей корзина и избранное сохраняются на сервере.
-- Магазин продавца: редактирование товаров и остатков, загрузка фото, включение и снятие с продажи.
-- Заказ с данными получателя, статусы по каждой позиции, трек-номер, отмена и возврат остатка. Цена и наличие проверяются на сервере, повторный запрос с тем же ключом не создаёт дубликат.
-- Переписка по заказу между покупателем и продавцом, отзывы после подтверждённого получения, жалобы на товары.
-- Кабинет администратора: жалобы, скрытие товаров, блокировка пользователей и удаление отзывов.
+- Accounts, optional email verification and password recovery via SMTP.
+- Searchable catalog, product and store pages, favorites and shopping cart.
+- Seller dashboard for products, inventory, images and orders.
+- Orders with price and stock checks, cancellations, tracking and duplicate-submission protection.
+- Order messages, reviews, product reports and administrator moderation.
 
-Цена указана в рублях. Интеграции оплаты и автоматической доставки отсутствуют.
+Prices are displayed in Russian rubles (RUB). Automated delivery integrations are not included.
 
-## Локальный запуск
+## Local development
 
-Требуются Node.js 24 и npm.
+Requires Node.js 24 and npm:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Откройте http://localhost:3000. Каталог новой установки пуст: создайте аккаунт, откройте кабинет продавца и добавьте товары. Чтобы проверить покупку, используйте второй аккаунт: продавец не может купить собственный товар.
+Open http://localhost:3000. The catalog starts empty. Register, open the seller dashboard and add a product. Use a second account to test purchasing: sellers cannot buy their own products.
 
-Для проверки производственной сборки:
+For a production build and integration tests:
 
 ```sh
 npm run build
@@ -32,56 +31,44 @@ npm test
 npm start
 ```
 
-При запуске production-сборки без HTTPS для локальной проверки нужно установить `COOKIE_SECURE=false` в окружении. На публичном сервере оставляйте защищённые cookie включёнными и используйте HTTPS.
+Set COOKIE_SECURE=false when testing the production build locally over HTTP. Use HTTPS and secure cookies on a public server.
 
-## Настройка
+## Configuration
 
-Скопируйте `.env.example` в `.env.local` и укажите необходимые значения. Next.js читает `.env.local` при запуске приложения. При использовании Docker Compose переменные берутся из `.env` или окружения.
+Copy .env.example to .env.local. Next.js loads .env.local; Docker Compose reads .env or the process environment.
 
-| Переменная                   | Назначение                                                                                                                                                                                           |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `APP_URL`                    | Полный публичный адрес, например `https://market.example.com`. Нужен для ссылок в письмах и проверки источника запросов.                                                                             |
-| `COOKIE_SECURE`              | `false` только для локального HTTP; в остальных случаях используйте `true`.                                                                                                                          |
-| `DATA_DIR`                   | Папка для базы и фотографий; по умолчанию `./data`. Требуется постоянный диск.                                                                                                                       |
-| `SMTP_URL`                   | Адрес SMTP-сервера с учётными данными. Не добавляйте секреты в репозиторий.                                                                                                                          |
-| `MAIL_FROM`                  | Адрес отправителя писем.                                                                                                                                                                             |
-| `REQUIRE_EMAIL_VERIFICATION` | `true` требует подтверждения email при регистрации; необходимы `APP_URL`, `SMTP_URL` и `MAIL_FROM`.                                                                                                  |
-| `TRUST_PROXY`                | `true` только за доверенным reverse proxy, который удаляет входящие `X-Forwarded-For` и `X-Real-IP` и устанавливает свои значения. Иначе эти заголовки нельзя использовать для ограничения запросов. |
+| Variable                   | Purpose                                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| APP_URL                    | Public application origin, used in emails and origin checks.                                 |
+| COOKIE_SECURE              | Set to false only for local HTTP; use true with HTTPS.                                       |
+| DATA_DIR                   | Persistent directory for the database and uploads; defaults to ./data.                       |
+| SMTP_URL                   | SMTP URL and credentials. Keep secrets out of the repository.                                |
+| MAIL_FROM                  | Sender address for account emails.                                                           |
+| REQUIRE_EMAIL_VERIFICATION | Require verified email; requires APP_URL, SMTP_URL and MAIL_FROM.                            |
+| TRUST_PROXY                | Enable only behind a trusted proxy that strips incoming forwarding headers and sets its own. |
 
-Без SMTP регистрация и вход работают, но отправка писем для восстановления пароля недоступна. Если включить обязательное подтверждение почты, при отсутствии SMTP новая регистрация будет недоступна. Пользователям, созданным до включения подтверждения, потребуется запросить письмо для подтверждения. Без доверенного прокси применяется общий лимит запросов для всех клиентов; для отдельных IP нужно настроить прокси и `TRUST_PROXY`.
+Without SMTP, password recovery emails are unavailable. If verification is required, registration is disabled until SMTP is configured. Existing users must request a verification email when verification is enabled. Without a trusted proxy, request limits are shared across clients.
 
-## Администратор
+## Administrator
 
-Зарегистрируйте обычный аккаунт, затем на сервере выполните:
-
-```sh
-npm run admin -- email@example.com
-```
-
-Команда предоставляет права только уже существующему пользователю. После этого в личном кабинете появится раздел управления площадкой. При использовании нестандартного `DATA_DIR` передайте ту же переменную в окружение команды. Защитите доступ к серверу: эта команда назначает администратора без подтверждения через веб-интерфейс.
+Register an account, then run `npm run admin -- email@example.com` on the server with the same DATA_DIR as the application. This grants administrator rights to an existing account. Restrict server access: the command does not require confirmation through the web interface.
 
 ## Docker
 
-Скопируйте `.env.example` в `.env`, установите `APP_URL` и нужные переменные, затем:
+Copy .env.example to .env, configure APP_URL and run `docker compose up --build -d`. Compose binds to 127.0.0.1:3000. Configure an HTTPS reverse proxy and the correct APP_URL for public access. Preserve the marketplace-data volume across updates. To grant administrator rights in the container, run `docker compose exec marketplace npm run admin -- email@example.com`.
 
-```sh
-docker compose up --build -d
-```
+## Backups
 
-Compose открывает приложение только на `127.0.0.1:3000`; для публичного доступа настройте перед ним HTTPS reverse proxy и корректный `APP_URL`. Данные хранятся в именованном томе `marketplace-data`. Не удаляйте том при обновлении. Администратора можно назначить командой `docker compose exec marketplace npm run admin -- email@example.com`.
+Run `npm run backup -- /path/to/new-backup.sqlite` with the application's DATA_DIR to create a consistent database snapshot. Existing files are not overwritten. Back up DATA_DIR/uploads separately. Store backups off the server and test restoration. To restore, stop the application, preserve the current data, replace the database and restore the matching uploads directory.
 
-## Резервное копирование
+## Structure
 
-`npm run backup -- /путь/к/новому-файлу.sqlite` создаёт согласованную копию SQLite и не перезаписывает существующий файл. Запускайте команду с тем же `DATA_DIR`, что и приложение. Отдельно копируйте каталог `DATA_DIR/uploads`: в базе хранятся ссылки на эти файлы. Храните копии вне сервера и проверяйте восстановление. Для восстановления остановите приложение, сохраните текущие данные, замените базу и верните соответствующий каталог `uploads`.
+- app/ — Next.js page, HTTP API and image delivery.
+- components/ — catalog, checkout, account and moderation interfaces.
+- lib/ — database, authentication, validation and business logic.
+- scripts/ — administrator management and backups.
+- tests/ — integration tests for orders, permissions, email and migration.
 
-## Структура
+## Operational limits
 
-- `app/` — страница Next.js, HTTP API и выдача загруженных изображений.
-- `components/` — интерфейс каталога, заказа, аккаунта и модерации.
-- `lib/` — база данных, учётные записи, проверки и бизнес-логика.
-- `scripts/` — назначение администратора и резервное копирование.
-- `tests/` — интеграционные проверки заказов, прав доступа, почты и миграции данных.
-
-## Эксплуатационные ограничения
-
-Приложение рассчитано на один экземпляр Node.js с постоянным диском SQLite; встроенный `node:sqlite` в Node.js помечен экспериментальным. Каталог загружается целиком, а кабинеты ограничивают число показываемых записей; для крупной площадки нужны постраничная выдача и другая архитектура хранения. Для публичной эксплуатации также потребуются мониторинг, резервное копирование, аудит безопасности, правила модерации, правовые документы и организация обработки персональных данных и споров. Ограничение по IP работает только при корректной настройке доверенного прокси. Не размещайте базу и загруженные файлы на временной файловой системе.
+The application targets one Node.js instance with persistent SQLite storage; Node.js marks its built-in node:sqlite module as experimental. The catalog is loaded in full and dashboards cap displayed records. Larger deployments need pagination and a different storage architecture. Public operation also requires monitoring, tested backups, a security review, moderation procedures, legal documents and processes for personal data and disputes. Per-IP limits require a correctly configured trusted proxy. Do not use ephemeral storage for the database or uploads.

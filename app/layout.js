@@ -1,13 +1,13 @@
-﻿import "./globals.css";
+import "./globals.css";
 
 export const metadata = {
-  title: "Nortov — покупки каждый день",
-  description: "Вещи для дома, гардероба и каждого дня.",
+  title: "Nortov — shopping every day",
+  description: "Things for the home, wardrobe and every day.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

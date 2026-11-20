@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import {
   ShoppingBag,
   Search,
@@ -47,13 +47,13 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
     <>
       <div className="utility">
         <div className="wrap utility-inner">
-          <span>Покупайте у независимых продавцов</span>
+          <span>Buy from independent sellers</span>
           <div>
             <NavLink page="seller" go={go}>
-              Продавать на Nortov
+              Sell ​​on Nortov
             </NavLink>
             <NavLink page="help" go={go}>
-              Помощь
+              Help
             </NavLink>
           </div>
         </div>
@@ -65,39 +65,39 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
           </NavLink>
           <button className="catalog-button" onClick={() => go("catalog")}>
             <Menu size={20} />
-            <span>Каталог</span>
+            <span>Catalog</span>
           </button>
           <label className="search-box">
             <Search size={21} />
             <input
-              aria-label="Поиск товаров"
+              aria-label="Search for products"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 go("catalog");
               }}
-              placeholder="Найти что угодно"
+              placeholder="Find anything"
             />
-            <kbd>Поиск</kbd>
+            <kbd>Search</kbd>
           </label>
-          <nav className="header-actions" aria-label="Основная навигация">
+          <nav className="header-actions" aria-label="Main navigation">
             <NavLink page="favorites" go={go}>
               <span className="icon-wrap">
                 <Heart size={23} />
                 {favoriteCount > 0 && <b>{favoriteCount}</b>}
               </span>
-              <small>Избранное</small>
+              <small>Favorites</small>
             </NavLink>
             <NavLink page="cart" go={go}>
               <span className="icon-wrap">
                 <ShoppingBag size={23} />
                 {count > 0 && <b>{count}</b>}
               </span>
-              <small>Корзина</small>
+              <small>Basket</small>
             </NavLink>
             <NavLink page={user ? "account" : "auth"} go={go}>
               <UserRound size={23} />
-              <small>{user ? "Кабинет" : "Войти"}</small>
+              <small>{user ? "Account" : "Sign in"}</small>
             </NavLink>
           </nav>
         </div>
@@ -114,48 +114,48 @@ export function Footer({ go }) {
             nortov<span>.</span>
           </NavLink>
           <p>
-            Маркетплейс хороших находок
+            Marketplace of good finds
             <br />
-            на каждый день.
+            for every day.
           </p>
         </div>
         <div>
-          <b>Покупателям</b>
+          <b>For buyers</b>
           <NavLink page="catalog" go={go}>
-            Каталог
+            Catalog
           </NavLink>
           <NavLink page="orders" go={go}>
-            Мои заказы
+            My orders
           </NavLink>
           <NavLink page="help" go={go}>
-            Как это работает
+            How does this work
           </NavLink>
         </div>
         <div>
-          <b>Продавцам</b>
+          <b>For sellers</b>
           <NavLink page="seller" go={go}>
-            Личный кабинет
+            Personal account
           </NavLink>
           <NavLink page="help" go={go}>
-            Заказы и доставка
+            Orders and delivery
           </NavLink>
         </div>
         <div>
-          <b>Аккаунт</b>
+          <b>Account</b>
           <NavLink page="account" go={go}>
-            Мой профиль
+            My profile
           </NavLink>
           <NavLink page="favorites" go={go}>
-            Избранное
+            Favorites
           </NavLink>
           <NavLink page="cart" go={go}>
-            Корзина
+            Basket
           </NavLink>
         </div>
       </div>
       <div className="wrap footer-bottom">
         © {new Date().getFullYear()} Nortov{" "}
-        <span>Сделано для хороших покупок</span>
+        <span>Made for a good shopping experience</span>
       </div>
     </footer>
   );
@@ -164,12 +164,7 @@ export function ProductCard({ p, go, favorite, toggleFavorite, add }) {
   return (
     <article className="product-card">
       <div className="product-image">
-        <NavLink
-          page="product"
-          id={p.id}
-          go={go}
-          aria-label={"Открыть " + p.name}
-        >
+        <NavLink page="product" id={p.id} go={go} aria-label={"Open " + p.name}>
           {p.image ? (
             <img src={p.image} alt="" loading="lazy" />
           ) : (
@@ -182,14 +177,12 @@ export function ProductCard({ p, go, favorite, toggleFavorite, add }) {
         <button
           className={"favorite " + (favorite ? "selected" : "")}
           onClick={() => toggleFavorite(p.id)}
-          aria-label={
-            favorite ? "Убрать из избранного" : "Добавить в избранное"
-          }
+          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
           aria-pressed={favorite}
         >
           <Heart size={19} fill={favorite ? "currentColor" : "none"} />
         </button>
-        {!p.stock && <span className="sold-out">Нет в наличии</span>}
+        {!p.stock && <span className="sold-out">Not available</span>}
       </div>
       <div className="product-info">
         <strong className="product-price">{money(p.price)}</strong>
@@ -199,15 +192,15 @@ export function ProductCard({ p, go, favorite, toggleFavorite, add }) {
         <span className="product-seller">{p.seller}</span>
         <div className="rating">
           <Star size={14} fill="currentColor" />
-          {p.rating || "Новый товар"}
-          {p.review_count > 0 && <span> · {p.review_count} отзывов</span>}
+          {p.rating || "New product"}
+          {p.review_count > 0 && <span> · {p.review_count} reviews</span>}
         </div>
         <button
           className="product-add"
           disabled={!p.stock}
           onClick={() => add(p)}
         >
-          {p.stock ? "В корзину" : "Нет в наличии"}
+          {p.stock ? "Add to cart" : "Not available"}
         </button>
       </div>
     </article>
@@ -239,14 +232,14 @@ export function Breadcrumb({ go, children }) {
   return (
     <div className="breadcrumb">
       <NavLink page="catalog" go={go}>
-        Главная
+        Home
       </NavLink>
       <ChevronRight size={14} />
       <span>{children}</span>
     </div>
   );
 }
-export function Back({ go, page = "catalog", children = "Назад" }) {
+export function Back({ go, page = "catalog", children = "Back" }) {
   return (
     <button className="back-link" onClick={() => go(page)}>
       <ArrowLeft size={16} />
@@ -270,15 +263,15 @@ export function OrderItem({ item, go, children }) {
       <div className="order-item-main">
         <strong>{item.product_name}</strong>
         <span>
-          {item.quantity} шт. · {money(item.price)} · {item.seller}
+          {item.quantity} pcs. · {money(item.price)} · {item.seller}
         </span>
         <div className="order-item-actions">
           <Status value={item.status} />
           <NavLink page="chat" id={item.id} go={go}>
-            <MessageCircle size={15} /> Написать
+            <MessageCircle size={15} /> Write
           </NavLink>
         </div>
-        {item.tracking && <span>Трек-номер: {item.tracking}</span>}
+        {item.tracking && <span>Track number: {item.tracking}</span>}
         {children}
       </div>
       <b>{money(item.price * item.quantity)}</b>
@@ -298,7 +291,7 @@ export function Alert({ message, type = "error", dismiss }) {
   return (
     <div className={"alert " + type} role="status">
       <span>{message}</span>
-      <button onClick={dismiss} aria-label="Закрыть">
+      <button onClick={dismiss} aria-label="Close">
         <X size={17} />
       </button>
     </div>
@@ -311,12 +304,12 @@ export function MissingFavorites({ favorites, products, toggleFavorite }) {
   if (!unavailable.length) return null;
   return (
     <section className="unavailable-favorites">
-      <h3>Недоступные товары</h3>
+      <h3>Unavailable products</h3>
       {unavailable.map((id) => (
         <div className="admin-row" key={id}>
-          <span>Товар № {id} больше не продаётся</span>
+          <span>Product № {id} no longer sold</span>
           <button className="text-button" onClick={() => toggleFavorite(id)}>
-            Убрать из избранного
+            Remove from favorites
           </button>
         </div>
       ))}

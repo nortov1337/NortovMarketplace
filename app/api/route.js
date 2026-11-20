@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { sessionUser, createSession, deleteSession, db } from "@/lib/db";
 import { authAction, mailConfigured } from "@/lib/auth";
@@ -29,10 +29,7 @@ function failure(error) {
   if (error instanceof HttpError)
     return response({ error: error.message }, error.status);
   console.error("API error:", error);
-  return response(
-    { error: "Не удалось выполнить запрос. Попробуйте позже." },
-    500,
-  );
+  return response({ error: "The request failed. Try again later." }, 500);
 }
 async function current() {
   const jar = await cookies();

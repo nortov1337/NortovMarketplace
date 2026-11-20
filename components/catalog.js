@@ -25,10 +25,10 @@ export function Catalog({
   add,
   onlyFavorites = false,
 }) {
-  const categories = ["Все", ...new Set(products.map((p) => p.category))];
+  const categories = ["All", ...new Set(products.map((p) => p.category))];
   let visible = products.filter(
     (p) =>
-      (category === "Все" || category === p.category) &&
+      (category === "All" || category === p.category) &&
       `${p.name} ${p.description} ${p.seller}`
         .toLowerCase()
         .includes(search.toLowerCase().trim()) &&
@@ -42,29 +42,29 @@ export function Catalog({
     <>
       {!onlyFavorites && (
         <>
-          <div className="category-bar" aria-label="Категории">
+          <div className="category-bar" aria-label="Categories">
             {categories.map((c) => (
               <button
                 className={category === c ? "active" : ""}
                 key={c}
                 onClick={() => setCategory(c)}
               >
-                {c === "Все" ? "Все товары" : c}
+                {c === "All" ? "All products" : c}
               </button>
             ))}
           </div>
           <section className="hero">
             <div className="hero-content">
               <span className="hero-kicker">
-                <span /> НАХОДИТЕ СВОЁ
+                <span /> FIND YOURS
               </span>
               <h1>
-                Всё, что
+                Everything
                 <br />
-                <em>нравится вам.</em>
+                <em>you love.</em>
               </h1>
               <p>
-                Место, где встречаются хорошие вещи и люди, которые их выбирают.
+                A place where good things and the people who choose them meet.
               </p>
               <button
                 className="button light"
@@ -74,7 +74,7 @@ export function Catalog({
                     ?.scrollIntoView({ behavior: "smooth" })
                 }
               >
-                Смотреть каталог
+                View catalog
               </button>
             </div>
             <div className="hero-shape hero-shape-one" />
@@ -82,20 +82,21 @@ export function Catalog({
             <div className="hero-stamp">
               <ShoppingBag size={32} />
               <span>
-                выбирайте
-                <br />с удовольствием
+                choose
+                <br />
+                with pleasure
               </span>
             </div>
             <div className="hero-label">
-              ХОРОШИЕ ВЕЩИ
+              GOOD THINGS
               <br />
-              <b>РЯДОМ.</b>
+              <b>NEAR.</b>
             </div>
           </section>
           <div className="benefit-bar">
-            <span>Открывайте новые магазины</span>
-            <span>Общайтесь с продавцами</span>
-            <span>Выбирайте в своём ритме</span>
+            <span>Discover new stores</span>
+            <span>Chat with sellers</span>
+            <span>Choose at your own pace</span>
           </div>
         </>
       )}
@@ -103,30 +104,30 @@ export function Catalog({
         <div className="section-heading">
           <div>
             <span className="eyebrow">
-              {onlyFavorites ? "ВАША ПОДБОРКА" : "НАХОДКИ ДЛЯ ВАС"}
+              {onlyFavorites ? "YOUR SELECTION" : "FINDS FOR YOU"}
             </span>
             <h2>
               {onlyFavorites
-                ? "Избранное"
+                ? "Favorites"
                 : search
-                  ? `Поиск: ${search}`
-                  : category === "Все"
-                    ? "Каталог товаров"
+                  ? `Search: ${search}`
+                  : category === "All"
+                    ? "Product catalog"
                     : category}
             </h2>
             <p>
               {visible.length
-                ? `${visible.length} товаров`
-                : "Пока ничего не найдено"}
+                ? `${visible.length} products`
+                : "Nothing found yet"}
             </p>
           </div>
           <label className="sort-label">
-            Сортировка{" "}
+            Sorting{" "}
             <select value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="new">Сначала новые</option>
-              <option value="low">Сначала дешевле</option>
-              <option value="high">Сначала дороже</option>
-              <option value="rating">По рейтингу</option>
+              <option value="new">Newest first</option>
+              <option value="low">Price: low to high</option>
+              <option value="high">Price: high to low</option>
+              <option value="rating">By rating</option>
             </select>
           </label>
         </div>
@@ -147,30 +148,28 @@ export function Catalog({
           <Empty
             icon={onlyFavorites ? "heart" : "bag"}
             title={
-              onlyFavorites
-                ? "Сохраняйте то, что нравится"
-                : "Здесь скоро появятся товары"
+              onlyFavorites ? "Save what you like" : "Products coming here soon"
             }
             text={
               onlyFavorites
-                ? "Нажмите на сердечко на карточке товара, чтобы вернуться к нему позже."
+                ? "Click on the heart on the product card to return to it later."
                 : products.length
-                  ? "Попробуйте изменить запрос или выбрать другую категорию."
-                  : "Продавцы могут добавить товары в своём личном кабинете."
+                  ? "Try changing your request or selecting a different category."
+                  : "Sellers can add products in their personal account."
             }
           >
             <button
               className="button secondary"
               onClick={() => {
-                setCategory("Все");
+                setCategory("All");
                 go(onlyFavorites ? "catalog" : "seller");
               }}
             >
               {onlyFavorites
-                ? "Перейти в каталог"
+                ? "Go to catalog"
                 : products.length
-                  ? "Сбросить категорию"
-                  : "Открыть кабинет продавца"}
+                  ? "Reset category"
+                  : "Open seller’s account"}
             </button>
           </Empty>
         )}
@@ -191,7 +190,7 @@ export function Product({
   const [rating, setRating] = useState("5"),
     [text, setText] = useState(""),
     [busy, setBusy] = useState(false);
-  if (!detail) return <p className="loading">Загружаем товар…</p>;
+  if (!detail) return <p className="loading">Loading product...</p>;
   const { product: p, reviews, canReview } = detail;
   return (
     <>
@@ -211,18 +210,18 @@ export function Product({
           <span className="eyebrow">{p.category.toUpperCase()}</span>
           <h1>{p.name}</h1>
           <div className="rating">
-            <Star size={16} fill="currentColor" /> {p.rating || "Новый товар"}{" "}
-            {p.review_count > 0 && <span>· {p.review_count} отзывов</span>}
+            <Star size={16} fill="currentColor" /> {p.rating || "New product"}{" "}
+            {p.review_count > 0 && <span>· {p.review_count} reviews</span>}
           </div>
           <p className="detail-seller">
-            Продавец{" "}
+            Salesman{" "}
             <NavLink page="store" id={p.seller_id} go={go}>
               <b>{p.seller}</b>
             </NavLink>
           </p>
           <div className="detail-price">{money(p.price)}</div>
           <p className={p.stock ? "availability" : "availability unavailable"}>
-            {p.stock ? `В наличии: ${p.stock} шт.` : "Нет в наличии"}
+            {p.stock ? `In stock: ${p.stock} pcs.` : "Not available"}
           </p>
           <div className="detail-buttons">
             <button
@@ -230,12 +229,12 @@ export function Product({
               className="button primary"
               onClick={() => add(p)}
             >
-              Добавить в корзину
+              Add to cart
             </button>
             <button
               className="icon-button"
               onClick={() => toggleFavorite(p.id)}
-              aria-label="Добавить в избранное"
+              aria-label="Add to favorites"
             >
               <Heart
                 size={21}
@@ -244,14 +243,14 @@ export function Product({
             </button>
           </div>
           <div className="detail-note">
-            Доставка и способ расчёта согласуются с продавцом после оформления
-            заказа.
+            Arrange delivery and payment with the seller after placing your
+            order.
           </div>
-          <h3>О товаре</h3>
+          <h3>About the product</h3>
           <p className="description-text">{p.description}</p>
           {p.store_description && (
             <>
-              <h3>О магазине</h3>
+              <h3>About the store</h3>
               <p className="description-text">{p.store_description}</p>
             </>
           )}
@@ -260,8 +259,8 @@ export function Product({
       <section className="reviews">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">МНЕНИЕ ПОКУПАТЕЛЕЙ</span>
-            <h2>Отзывы</h2>
+            <span className="eyebrow">BUYERS’ OPINION</span>
+            <h2>Reviews</h2>
           </div>
         </div>
         {reviews.length ? (
@@ -280,8 +279,8 @@ export function Product({
           ))
         ) : (
           <p className="muted">
-            Пока нет отзывов. Первым может поделиться впечатлением покупатель,
-            получивший товар.
+            There are no reviews yet. Be the first to leave a review after
+            receiving the product.
           </p>
         )}
         {canReview && (
@@ -294,22 +293,22 @@ export function Product({
               setBusy(false);
             }}
           >
-            <h3>Ваш отзыв</h3>
+            <h3>Your review</h3>
             <label className="field">
-              <span>Оценка</span>
+              <span>Grade</span>
               <select
                 value={rating}
                 onChange={(e) => setRating(e.target.value)}
               >
                 {[5, 4, 3, 2, 1].map((n) => (
                   <option key={n} value={n}>
-                    {n} из 5
+                    {n} from 5
                   </option>
                 ))}
               </select>
             </label>
             <label className="field">
-              <span>Расскажите о товаре</span>
+              <span>Tell us about the product</span>
               <textarea
                 required
                 minLength={3}
@@ -319,7 +318,7 @@ export function Product({
               />
             </label>
             <button className="button primary" disabled={busy}>
-              Опубликовать отзыв
+              Post a review
             </button>
           </form>
         )}
@@ -327,9 +326,9 @@ export function Product({
         {!user && (
           <p className="muted">
             <NavLink page="auth" go={go}>
-              Войдите
+              Sign in
             </NavLink>
-            , чтобы оставить отзыв после покупки.
+            , to leave feedback after purchase.
           </p>
         )}
       </section>
@@ -337,20 +336,20 @@ export function Product({
   );
 }
 export function Storefront({ data, go, favorites, toggleFavorite, add }) {
-  if (!data) return <p className="loading">Загружаем магазин…</p>;
+  if (!data) return <p className="loading">Loading the store...</p>;
   return (
     <>
-      <Breadcrumb go={go}>Магазин</Breadcrumb>
+      <Breadcrumb go={go}>Shop</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">МАГАЗИН НА NORTOV</span>
+        <span className="eyebrow">STORE AT NORTOV</span>
         <h1>{data.store.name}</h1>
         {data.store.description && (
           <p className="description-text">{data.store.description}</p>
         )}
       </div>
       <div className="section-heading">
-        <h2>Товары магазина</h2>
-        <span className="muted">{data.products.length} товаров</span>
+        <h2>Store products</h2>
+        <span className="muted">{data.products.length} products</span>
       </div>
       {data.products.length ? (
         <div className="product-grid">
@@ -368,11 +367,11 @@ export function Storefront({ data, go, favorites, toggleFavorite, add }) {
       ) : (
         <Empty
           icon="store"
-          title="В магазине пока нет товаров"
-          text="Посмотрите другие предложения в каталоге."
+          title="There are no products in the store yet"
+          text="Check out other offers in the catalog."
         >
           <button className="button primary" onClick={() => go("catalog")}>
-            Открыть каталог
+            Open catalog
           </button>
         </Empty>
       )}

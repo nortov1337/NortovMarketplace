@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   agentRules: false,
+  outputFileTracingExcludes: { "/*": ["./data/**/*"] },
   async headers() {
     return [
       {

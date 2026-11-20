@@ -1,4 +1,4 @@
-﻿import { test } from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -87,17 +87,17 @@ async function launch(t, extra = {}, prepare) {
 test("marketplace transactions, permissions, images and moderation", async (t) => {
   const { base, dir, post, get } = await launch(t);
   const seller = await post("register", {
-    name: "Продавец",
+    name: "Salesman",
     email: "seller@example.test",
     password: "password-123",
   });
   const buyer = await post("register", {
-    name: "Покупатель",
+    name: "Buyer",
     email: "buyer@example.test",
     password: "password-123",
   });
   const outsider = await post("register", {
-    name: "Другой",
+    name: "Another",
     email: "other@example.test",
     password: "password-123",
   });
@@ -119,7 +119,7 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     (
       await post(
         "store",
-        { name: "Чужой" },
+        { name: "Stranger" },
         seller.cookie,
         "https://attacker.example",
       )
@@ -130,25 +130,25 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     (
       await post(
         "store",
-        { name: "Хороший магазин", description: "Описание" },
+        { name: "Nice store", description: "Description" },
         seller.cookie,
       )
     ).status,
     200,
   );
   const product = {
-    name: "Кружка",
-    description: "Керамическая кружка",
-    category: "Дом",
+    name: "Mug",
+    description: "Ceramic mug",
+    category: "House",
     price: 500,
     stock: 3,
   };
   assert.equal((await post("product", product, seller.cookie)).status, 200);
   let listing = await get("products");
   const p = listing.body.products[0];
-  assert.equal(p.seller, "Хороший магазин");
+  assert.equal(p.seller, "Nice store");
   const store = await get("store", "", { id: seller.body.user.id });
-  assert.equal(store.body.store.name, "Хороший магазин");
+  assert.equal(store.body.store.name, "Nice store");
   assert.equal(store.body.products.length, 1);
   assert.equal(
     (await post("product", { ...product, id: p.id }, buyer.cookie)).status,
@@ -165,10 +165,10 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
   );
   assert.equal((await get("personal", buyer.cookie)).body.cart[0].quantity, 2);
   const order = {
-    name: "Покупатель",
+    name: "Buyer",
     phone: "+79990000000",
-    address: "Москва, улица 1",
-    comment: "Позвоните",
+    address: "Moscow, street 1",
+    comment: "Call",
     key: "order-test-key-0001",
     items: [{ id: p.id, quantity: 2, price: 500 }],
   };
@@ -188,7 +188,7 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
   const replay = await post("order", order, buyer.cookie);
   assert.equal(replay.body.orderId, first.body.orderId);
   assert.equal(
-    (await post("order", { ...order, address: "Другой адрес" }, buyer.cookie))
+    (await post("order", { ...order, address: "Other address" }, buyer.cookie))
       .status,
     409,
   );
@@ -203,7 +203,7 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     (
       await post(
         "message",
-        { id: item.id, message: "Когда отправите?" },
+        { id: item.id, message: "When will you send it?" },
         buyer.cookie,
       )
     ).status,
@@ -218,7 +218,7 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     (
       await post(
         "review",
-        { id: p.id, rating: 5, text: "Отличная кружка" },
+        { id: p.id, rating: 5, text: "Great mug" },
         buyer.cookie,
       )
     ).status,
@@ -258,7 +258,7 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
     (
       await post(
         "review",
-        { id: p.id, rating: 5, text: "Отличная кружка" },
+        { id: p.id, rating: 5, text: "Great mug" },
         buyer.cookie,
       )
     ).status,
@@ -266,13 +266,8 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
   );
   assert.equal((await get("product", "", { id: p.id })).body.product.rating, 5);
   assert.equal(
-    (
-      await post(
-        "report",
-        { id: p.id, reason: "Подозрительное объявление" },
-        buyer.cookie,
-      )
-    ).status,
+    (await post("report", { id: p.id, reason: "Suspicious ad" }, buyer.cookie))
+      .status,
     200,
   );
   const second = await post(
@@ -427,7 +422,7 @@ test("email verification and password recovery invalidate old sessions", async (
     REQUIRE_EMAIL_VERIFICATION: "true",
   });
   let result = await post("register", {
-    name: "Ирина",
+    name: "Irina",
     email: "mail@example.test",
     password: "password-123",
   });

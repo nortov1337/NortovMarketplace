@@ -20,26 +20,26 @@ export function Auth({ mode, setMode, config, submit, token }) {
   const change = (key, value) => setForm({ ...form, [key]: value });
   const heading =
     {
-      login: "С возвращением",
-      register: "Создать аккаунт",
-      forgot: "Восстановление пароля",
-      resendVerification: "Подтверждение почты",
-      reset: "Новый пароль",
-      verify: "Подтверждение почты",
-    }[mode] || "Вход";
+      login: "Welcome back",
+      register: "Create an account",
+      forgot: "Password recovery",
+      resendVerification: "Email confirmation",
+      reset: "New Password",
+      verify: "Email confirmation",
+    }[mode] || "Entrance";
   return (
     <div className="auth-shell">
       <div className="auth-card">
-        <span className="eyebrow">ДОБРО ПОЖАЛОВАТЬ В NORTOV</span>
+        <span className="eyebrow">WELCOME TO NORTOV</span>
         <h1>{heading}</h1>
         <p className="muted">
           {mode === "login"
-            ? "Войдите, чтобы следить за заказами и сохранять любимые товары."
+            ? "Sign in to track your orders and save your favorite items."
             : mode === "register"
-              ? "Один аккаунт для покупок и продаж."
+              ? "One account for purchases and sales."
               : mode === "verify"
-                ? "Подтвердите почту, чтобы продолжить."
-                : "Укажите данные для восстановления доступа."}
+                ? "Confirm your email to continue."
+                : "Provide data to restore access."}
         </p>
         <form
           className="form"
@@ -52,7 +52,7 @@ export function Auth({ mode, setMode, config, submit, token }) {
         >
           {mode === "register" && (
             <Field
-              label="Ваше имя"
+              label="your name"
               required
               minLength={2}
               maxLength={80}
@@ -65,7 +65,7 @@ export function Auth({ mode, setMode, config, submit, token }) {
             mode,
           ) && (
             <Field
-              label="Электронная почта"
+              label="E-mail"
               required
               type="email"
               maxLength={254}
@@ -76,7 +76,7 @@ export function Auth({ mode, setMode, config, submit, token }) {
           )}
           {["login", "register", "reset"].includes(mode) && (
             <Field
-              label={mode === "reset" ? "Новый пароль" : "Пароль"}
+              label={mode === "reset" ? "New Password" : "Password"}
               required
               type="password"
               minLength={8}
@@ -90,36 +90,36 @@ export function Auth({ mode, setMode, config, submit, token }) {
           )}
           <button disabled={busy} className="button primary full">
             {busy
-              ? "Подождите…"
+              ? "Wait…"
               : mode === "login"
-                ? "Войти"
+                ? "Sign in"
                 : mode === "register"
-                  ? "Зарегистрироваться"
+                  ? "Register"
                   : mode === "verify"
-                    ? "Подтвердить почту"
+                    ? "Confirm email"
                     : mode === "reset"
-                      ? "Сохранить пароль"
-                      : "Отправить письмо"}
+                      ? "Save password"
+                      : "Send a letter"}
           </button>
         </form>
         <div className="auth-switch">
           {mode === "login" ? (
             <>
-              Нет аккаунта?{" "}
-              <button onClick={() => setMode("register")}>
-                Зарегистрироваться
-              </button>
+              Don’t have an account?{" "}
+              <button onClick={() => setMode("register")}>Register</button>
             </>
           ) : (
-            <button onClick={() => setMode("login")}>Вернуться ко входу</button>
+            <button onClick={() => setMode("login")}>Back to sign in</button>
           )}
         </div>
         {mode === "login" && config.mailConfigured && (
           <div className="auth-extra">
-            <button onClick={() => setMode("forgot")}>Забыли пароль?</button>
+            <button onClick={() => setMode("forgot")}>
+              Forgot your password?
+            </button>
             {config.verificationRequired && (
               <button onClick={() => setMode("resendVerification")}>
-                Отправить подтверждение повторно
+                Resend confirmation
               </button>
             )}
           </div>
@@ -135,10 +135,10 @@ export function Account({ user, go, submit, logout }) {
     [busy, setBusy] = useState(false);
   return (
     <>
-      <Breadcrumb go={go}>Личный кабинет</Breadcrumb>
+      <Breadcrumb go={go}>Personal account</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</span>
-        <h1>Здравствуйте, {user.name}</h1>
+        <span className="eyebrow">PERSONAL ACCOUNT</span>
+        <h1>Hello, {user.name}</h1>
         <p>{user.email}</p>
       </div>
       <div className="account-grid">
@@ -146,31 +146,31 @@ export function Account({ user, go, submit, logout }) {
           <button onClick={() => go("orders")}>
             <Package />{" "}
             <span>
-              <b>Мои заказы</b>
-              <small>Покупки и их статусы</small>
+              <b>My orders</b>
+              <small>Purchases and their statuses</small>
             </span>
           </button>
           <button onClick={() => go("seller")}>
             <Store />{" "}
             <span>
-              <b>Кабинет продавца</b>
-              <small>Товары и заказы покупателей</small>
+              <b>Seller’s account</b>
+              <small>Products and customer orders</small>
             </span>
           </button>
           {!!user.is_admin && (
             <button onClick={() => go("admin")}>
               <Shield />{" "}
               <span>
-                <b>Управление площадкой</b>
-                <small>Модерация и пользователи</small>
+                <b>Site management</b>
+                <small>Moderation and users</small>
               </span>
             </button>
           )}
           <button onClick={logout}>
             <UserRound />{" "}
             <span>
-              <b>Выйти из аккаунта</b>
-              <small>Завершить текущую сессию</small>
+              <b>Log out of your account</b>
+              <small>End current session</small>
             </span>
           </button>
         </div>
@@ -184,9 +184,9 @@ export function Account({ user, go, submit, logout }) {
               setBusy(false);
             }}
           >
-            <h3>Личные данные</h3>
+            <h3>Personal information</h3>
             <Field
-              label="Имя"
+              label="Name"
               required
               minLength={2}
               maxLength={80}
@@ -194,7 +194,7 @@ export function Account({ user, go, submit, logout }) {
               onChange={(e) => setName(e.target.value)}
             />
             <button className="button secondary" disabled={busy}>
-              Сохранить
+              Save
             </button>
           </form>
           <form
@@ -209,9 +209,9 @@ export function Account({ user, go, submit, logout }) {
               setBusy(false);
             }}
           >
-            <h3>Изменить пароль</h3>
+            <h3>Change password</h3>
             <Field
-              label="Текущий пароль"
+              label="Current Password"
               type="password"
               required
               maxLength={128}
@@ -219,7 +219,7 @@ export function Account({ user, go, submit, logout }) {
               onChange={(e) => setCurrent(e.target.value)}
             />
             <Field
-              label="Новый пароль"
+              label="New Password"
               type="password"
               required
               minLength={8}
@@ -228,10 +228,11 @@ export function Account({ user, go, submit, logout }) {
               onChange={(e) => setPassword(e.target.value)}
             />
             <button className="button secondary" disabled={busy}>
-              Обновить пароль
+              Update password
             </button>
             <p className="fineprint">
-              После смены пароля потребуется войти снова на всех устройствах.
+              After changing your password, you will need to log in again on all
+              devices.
             </p>
           </form>
         </div>
@@ -261,7 +262,7 @@ export function Seller({
     [store, setStore] = useState(null),
     [busy, setBusy] = useState(false),
     [tracking, setTracking] = useState({});
-  if (!data) return <p className="loading">Загружаем кабинет…</p>;
+  if (!data) return <p className="loading">Loading your account...</p>;
   const profile = store || {
     name: data.profile.store_name,
     description: data.profile.description,
@@ -269,12 +270,12 @@ export function Seller({
   const edit = (key, value) => setProduct({ ...product, [key]: value });
   return (
     <>
-      <Breadcrumb go={go}>Кабинет продавца</Breadcrumb>
+      <Breadcrumb go={go}>Seller’s account</Breadcrumb>
       <div className="page-heading seller-heading">
         <div>
-          <span className="eyebrow">ПРОДАВАЙТЕ НА NORTOV</span>
-          <h1>Кабинет продавца</h1>
-          <p>Управляйте товарами, заказами и своим магазином.</p>
+          <span className="eyebrow">SELL ON NORTOV</span>
+          <h1>Seller’s account</h1>
+          <p>Manage products, orders and your store.</p>
         </div>
         <button
           className="button primary"
@@ -283,16 +284,16 @@ export function Seller({
             setTab("edit");
           }}
         >
-          Добавить товар
+          Add product
         </button>
       </div>
       <div className="dashboard-stats">
         <div>
-          <span>Товары</span>
+          <span>Goods</span>
           <strong>{data.products.length}</strong>
         </div>
         <div>
-          <span>В продаже</span>
+          <span>On sale</span>
           <strong>
             {
               data.products.filter(
@@ -302,17 +303,17 @@ export function Seller({
           </strong>
         </div>
         <div>
-          <span>Новые заказы</span>
+          <span>New orders</span>
           <strong>{data.items.filter((i) => i.status === "new").length}</strong>
         </div>
       </div>
       <div className="tabs" role="tablist">
         {[
-          ["products", "Товары"],
-          ["orders", "Заказы"],
-          ["store", "Магазин"],
+          ["products", "Goods"],
+          ["orders", "Orders"],
+          ["store", "Shop"],
           ...(tab === "edit"
-            ? [["edit", product.id ? "Изменить товар" : "Новый товар"]]
+            ? [["edit", product.id ? "Change product" : "New product"]]
             : []),
         ].map(([id, label]) => (
           <button
@@ -330,8 +331,8 @@ export function Seller({
         (!data.products.length ? (
           <Empty
             icon="store"
-            title="Добавьте первый товар"
-            text="Укажите описание, цену и остаток, чтобы покупатели могли найти товар."
+            title="Add your first product"
+            text="Include description, price and balance so that buyers can find the product."
           >
             <button
               className="button primary"
@@ -340,7 +341,7 @@ export function Seller({
                 setTab("edit");
               }}
             >
-              Добавить товар
+              Add product
             </button>
           </Empty>
         ) : (
@@ -353,12 +354,12 @@ export function Seller({
                 <div className="seller-product">
                   <b>{p.name}</b>
                   <span>
-                    {money(p.price)} · {p.stock} шт. ·{" "}
+                    {money(p.price)} · {p.stock} pcs. ·{" "}
                     {p.moderation === "hidden"
-                      ? "Скрыт модератором"
+                      ? "Hidden by moderator"
                       : p.active
-                        ? "В продаже"
-                        : "Снят с продажи"}
+                        ? "On sale"
+                        : "Out of stock"}
                   </span>
                 </div>
                 <div className="row-buttons">
@@ -369,13 +370,13 @@ export function Seller({
                       setTab("edit");
                     }}
                   >
-                    Изменить
+                    Change
                   </button>
                   <button
                     className="button secondary"
                     onClick={() => changeActive(p)}
                   >
-                    {p.active ? "Снять с продажи" : "Вернуть в продажу"}
+                    {p.active ? "Remove from sale" : "Return to sale"}
                   </button>
                 </div>
               </div>
@@ -395,9 +396,9 @@ export function Seller({
             setBusy(false);
           }}
         >
-          <h2>{product.id ? "Редактирование товара" : "Новый товар"}</h2>
+          <h2>{product.id ? "Editing a product" : "New product"}</h2>
           <Field
-            label="Название товара"
+            label="Product name"
             required
             minLength={2}
             maxLength={120}
@@ -405,16 +406,16 @@ export function Seller({
             onChange={(e) => edit("name", e.target.value)}
           />
           <Field
-            label="Категория"
+            label="Category"
             required
             minLength={2}
             maxLength={80}
-            placeholder="Например, Для дома"
+            placeholder="For example, For home"
             value={product.category}
             onChange={(e) => edit("category", e.target.value)}
           />
           <label className="field">
-            <span>Описание</span>
+            <span>Description</span>
             <textarea
               required
               minLength={3}
@@ -425,7 +426,7 @@ export function Seller({
           </label>
           <div className="form-two">
             <Field
-              label="Цена, ₽"
+              label="Price, ₽"
               type="number"
               min="1"
               max="100000000"
@@ -434,7 +435,7 @@ export function Seller({
               onChange={(e) => edit("price", e.target.value)}
             />
             <Field
-              label="Количество"
+              label="Quantity"
               type="number"
               min="0"
               max="1000000"
@@ -444,7 +445,7 @@ export function Seller({
             />
           </div>
           <label className="field">
-            <span>Фотография</span>
+            <span>Photo</span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -460,26 +461,26 @@ export function Seller({
             />
           </label>
           <Field
-            label="Или ссылка на изображение (https)"
+            label="Or link to image (https)"
             value={product.image}
             maxLength={1000}
             onChange={(e) => edit("image", e.target.value)}
           />
           {product.image && (
             <div className="upload-preview">
-              <img src={product.image} alt="Предпросмотр товара" />
+              <img src={product.image} alt="Product preview" />
             </div>
           )}
           <div className="row-buttons">
             <button className="button primary" disabled={busy}>
-              {busy ? "Сохраняем…" : "Сохранить товар"}
+              {busy ? "Let’s save..." : "Save product"}
             </button>
             <button
               type="button"
               className="button ghost"
               onClick={() => setTab("products")}
             >
-              Отмена
+              Cancel
             </button>
           </div>
         </form>
@@ -494,9 +495,9 @@ export function Seller({
             setBusy(false);
           }}
         >
-          <h2>Ваш магазин</h2>
+          <h2>Your store</h2>
           <Field
-            label="Название магазина"
+            label="Store name"
             required
             minLength={2}
             maxLength={80}
@@ -504,7 +505,7 @@ export function Seller({
             onChange={(e) => setStore({ ...profile, name: e.target.value })}
           />
           <label className="field">
-            <span>О магазине</span>
+            <span>About the store</span>
             <textarea
               maxLength={1000}
               value={profile.description}
@@ -514,15 +515,15 @@ export function Seller({
             />
           </label>
           <button className="button primary" disabled={busy}>
-            Сохранить
+            Save
           </button>
         </form>
       )}
       {tab === "orders" &&
         (!data.items.length ? (
           <Empty
-            title="Новых заказов пока нет"
-            text="Когда покупатель оформит заказ, он появится здесь."
+            title="No new orders yet"
+            text="When the buyer places an order, it will appear here."
           />
         ) : (
           <div className="orders-list">
@@ -530,7 +531,7 @@ export function Seller({
               <section className="order-card" key={i.id}>
                 <div className="order-header">
                   <div>
-                    <h3>Заказ № {i.order_id}</h3>
+                    <h3>Order № {i.order_id}</h3>
                     <span>
                       {date(i.created_at)} · {i.recipient}
                     </span>
@@ -540,11 +541,11 @@ export function Seller({
                   <div className="seller-contact">
                     <span>{i.phone}</span>
                     <span>{i.address}</span>
-                    {i.comment && <span>Комментарий: {i.comment}</span>}
+                    {i.comment && <span>Comment: {i.comment}</span>}
                   </div>
                   {i.status === "accepted" && (
                     <Field
-                      label="Трек-номер (если есть)"
+                      label="Track number (if available))"
                       maxLength={100}
                       value={tracking[i.id] || ""}
                       onChange={(e) =>
@@ -580,21 +581,21 @@ export function Seller({
 }
 export function Admin({ data, go, action }) {
   const [tab, setTab] = useState("products");
-  if (!data) return <p className="loading">Загружаем данные…</p>;
+  if (!data) return <p className="loading">Loading data...</p>;
   return (
     <>
-      <Breadcrumb go={go}>Управление площадкой</Breadcrumb>
+      <Breadcrumb go={go}>Site management</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">УПРАВЛЕНИЕ ПЛОЩАДКОЙ</span>
-        <h1>Модерация</h1>
-        <p>Товары, пользователи и отзывы.</p>
+        <span className="eyebrow">SITE MANAGEMENT</span>
+        <h1>Moderation</h1>
+        <p>Products, users and reviews.</p>
       </div>
       <div className="tabs">
         {[
-          ["reports", "Жалобы"],
-          ["products", "Товары"],
-          ["users", "Пользователи"],
-          ["reviews", "Отзывы"],
+          ["reports", "Complaints"],
+          ["products", "Goods"],
+          ["users", "Users"],
+          ["reviews", "Reviews"],
         ].map(([id, name]) => (
           <button
             className={tab === id ? "active" : ""}
@@ -616,7 +617,7 @@ export function Admin({ data, go, action }) {
                 <b>{p.name}</b>
                 <p>
                   {p.seller} · {money(p.price)} ·{" "}
-                  {p.moderation === "hidden" ? "Скрыт" : "Разрешён"}
+                  {p.moderation === "hidden" ? "Hidden" : "Allowed"}
                 </p>
               </div>
               <button
@@ -629,7 +630,7 @@ export function Admin({ data, go, action }) {
                   })
                 }
               >
-                {p.moderation === "hidden" ? "Разрешить" : "Скрыть"}
+                {p.moderation === "hidden" ? "Allow" : "Hide"}
               </button>
             </div>
           ))}
@@ -641,10 +642,10 @@ export function Admin({ data, go, action }) {
                 <p>
                   {u.email} ·{" "}
                   {u.is_admin
-                    ? "Администратор"
+                    ? "Administrator"
                     : u.suspended
-                      ? "Заблокирован"
-                      : "Активен"}
+                      ? "Blocked"
+                      : "Active"}
                 </p>
               </div>
               {!u.is_admin && (
@@ -654,7 +655,7 @@ export function Admin({ data, go, action }) {
                     action("adminUser", { id: u.id, suspended: !u.suspended })
                   }
                 >
-                  {u.suspended ? "Разблокировать" : "Заблокировать"}
+                  {u.suspended ? "Unblock" : "Block"}
                 </button>
               )}
             </div>
@@ -673,15 +674,17 @@ export function Admin({ data, go, action }) {
               <button
                 className="button secondary small"
                 onClick={() => {
-                  if (window.confirm("Удалить отзыв?"))
+                  if (window.confirm("Delete review?"))
                     action("adminReview", { id: r.id });
                 }}
               >
-                Удалить
+                Delete
               </button>
             </div>
           ))}
-        {data[tab]?.length === 0 && <p className="muted">Здесь пока пусто.</p>}
+        {data[tab]?.length === 0 && (
+          <p className="muted">It’s empty here yet.</p>
+        )}
       </div>
     </>
   );
@@ -689,40 +692,39 @@ export function Admin({ data, go, action }) {
 export function Help({ go }) {
   return (
     <>
-      <Breadcrumb go={go}>Помощь</Breadcrumb>
+      <Breadcrumb go={go}>Help</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">ВСЁ ПРОСТО</span>
-        <h1>Как это работает</h1>
+        <span className="eyebrow">IT’S SIMPLE</span>
+        <h1>How does this work</h1>
       </div>
       <div className="help-grid">
         <article className="surface">
-          <span className="eyebrow">ПОКУПАТЕЛЯМ</span>
-          <h2>Выбирайте и заказывайте</h2>
+          <span className="eyebrow">FOR BUYERS</span>
+          <h2>Choose and order</h2>
           <p>
-            Добавьте товары в корзину, укажите контактные данные и адрес. После
-            оформления напишите продавцу в карточке заказа, чтобы согласовать
-            получение и расчёт.
+            Add items to your cart and enter your contact details and address.
+            After placing the order, message the seller to arrange delivery and
+            payment.
           </p>
           <p>
-            После отправки подтвердите получение и поделитесь отзывом. Пока
-            продавец не принял заказ, товар можно отменить в личном кабинете.
+            Once your order is shipped, confirm receipt and share your feedback.
+            You can cancel an item before the seller accepts it.
           </p>
         </article>
         <article className="surface">
-          <span className="eyebrow">ПРОДАВЦАМ</span>
-          <h2>Откройте свой магазин</h2>
+          <span className="eyebrow">FOR SELLERS</span>
+          <h2>Open your store</h2>
           <p>
-            Создайте аккаунт, перейдите в кабинет продавца и добавьте товар с
-            фотографией, описанием, ценой и количеством. Заказы появятся в вашем
-            кабинете.
+            Create an account, open the seller dashboard and add a product with
+            a photo, description, price and quantity. Orders will appear in your
+            dashboard.
           </p>
           <p>
-            Свяжитесь с покупателем, согласуйте доставку и меняйте статус заказа
-            по мере выполнения. Для онлайн-оплаты отдельная интеграция не
-            подключена.
+            Contact the buyer, coordinate delivery and change the order status
+            as it progresses. Online payment is not integrated.
           </p>
           <button className="button secondary" onClick={() => go("seller")}>
-            Кабинет продавца
+            Seller’s account
           </button>
         </article>
       </div>

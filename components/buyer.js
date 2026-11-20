@@ -45,18 +45,18 @@ export function Cart({
   );
   return (
     <>
-      <Breadcrumb go={go}>Корзина</Breadcrumb>
+      <Breadcrumb go={go}>Basket</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">ВАШ ВЫБОР</span>
-        <h1>Корзина</h1>
+        <span className="eyebrow">YOUR CHOICE</span>
+        <h1>Basket</h1>
       </div>
       {!rows.length ? (
         <Empty
-          title="В корзине пока пусто"
-          text="Загляните в каталог — возможно, там уже есть что-то для вас."
+          title="The cart is still empty"
+          text="Take a look at the catalog - there may already be something for you there."
         >
           <button className="button primary" onClick={() => go("catalog")}>
-            Перейти в каталог
+            Go to catalog
           </button>
         </Empty>
       ) : (
@@ -72,14 +72,14 @@ export function Cart({
                   )}
                 </div>
                 <div className="cart-info">
-                  <b>{p ? p.name : "Товар больше недоступен"}</b>
-                  <span>{p ? p.seller : "Удалите товар из корзины"}</span>
+                  <b>{p ? p.name : "Product no longer available"}</b>
+                  <span>{p ? p.seller : "Remove item from cart"}</span>
                   {p && p.stock < quantity && (
-                    <span className="warning">Доступно: {p.stock} шт.</span>
+                    <span className="warning">Available: {p.stock} pcs.</span>
                   )}
                   {p && p.seller_id === user?.id && (
                     <span className="warning">
-                      Нельзя заказать собственный товар
+                      You cannot order your own product
                     </span>
                   )}
                   <button
@@ -89,12 +89,12 @@ export function Cart({
                       updateCart(id, 0);
                     }}
                   >
-                    Удалить
+                    Delete
                   </button>
                 </div>
                 <div className="quantity">
                   <button
-                    aria-label="Уменьшить количество"
+                    aria-label="Reduce quantity"
                     onClick={() => {
                       key.current = null;
                       updateCart(id, quantity - 1);
@@ -104,7 +104,7 @@ export function Cart({
                   </button>
                   <span>{quantity}</span>
                   <button
-                    aria-label="Увеличить количество"
+                    aria-label="Increase quantity"
                     disabled={!p || quantity >= p.stock || quantity >= 100}
                     onClick={() => {
                       key.current = null;
@@ -119,9 +119,9 @@ export function Cart({
             ))}
           </div>
           <aside className="summary-card">
-            <h2>Ваш заказ</h2>
+            <h2>Your order</h2>
             <div className="summary-line">
-              <span>Товары, {entries.reduce((a, [, q]) => a + q, 0)} шт.</span>
+              <span>Goods, {entries.reduce((a, [, q]) => a + q, 0)} pcs.</span>
               <b>
                 {money(
                   rows.reduce((s, x) => s + (x.p?.price || 0) * x.quantity, 0),
@@ -129,11 +129,11 @@ export function Cart({
               </b>
             </div>
             <div className="summary-line">
-              <span>Доставка</span>
-              <span>По договорённости</span>
+              <span>Delivery</span>
+              <span>By agreement</span>
             </div>
             <div className="summary-total">
-              <b>Итого</b>
+              <b>Total</b>
               <b>
                 {money(
                   rows.reduce((s, x) => s + (x.p?.price || 0) * x.quantity, 0),
@@ -145,7 +145,7 @@ export function Cart({
                 className="button primary full"
                 onClick={loginForCheckout}
               >
-                Войти для оформления
+                Sign in to checkout
               </button>
             ) : (
               <form
@@ -166,17 +166,17 @@ export function Cart({
                   setBusy(false);
                 }}
               >
-                <h3>Получатель</h3>
+                <h3>Recipient</h3>
                 <Field
                   required
-                  label="Имя"
+                  label="Name"
                   maxLength={100}
                   value={form.name}
                   onChange={(e) => set("name", e.target.value)}
                 />
                 <Field
                   required
-                  label="Телефон"
+                  label="Telephone"
                   type="tel"
                   maxLength={40}
                   value={form.phone}
@@ -184,13 +184,13 @@ export function Cart({
                 />
                 <Field
                   required
-                  label="Адрес доставки"
+                  label="Delivery address"
                   maxLength={500}
                   value={form.address}
                   onChange={(e) => set("address", e.target.value)}
                 />
                 <label className="field">
-                  <span>Комментарий к заказу</span>
+                  <span>Comments on the order</span>
                   <textarea
                     maxLength={1000}
                     value={form.comment}
@@ -201,16 +201,16 @@ export function Cart({
                   disabled={busy || invalid}
                   className="button primary full"
                 >
-                  {busy ? "Оформляем…" : "Оформить заказ"}
+                  {busy ? "We are preparing…" : "Place an order"}
                 </button>
                 {invalid && (
-                  <p className="warning">Проверьте товары и их количество.</p>
+                  <p className="warning">Check products and their quantity.</p>
                 )}
               </form>
             )}
             <p className="fineprint">
-              Заказ оформляется без онлайн-оплаты. Детали доставки и расчёта
-              согласуйте с продавцом.
+              This order has no online payment. Arrange delivery and payment
+              with the seller.
             </p>
           </aside>
         </div>
@@ -221,18 +221,18 @@ export function Cart({
 export function Orders({ orders, items, go, changeStatus }) {
   return (
     <>
-      <Breadcrumb go={go}>Мои заказы</Breadcrumb>
+      <Breadcrumb go={go}>My orders</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">ВАШИ ПОКУПКИ</span>
-        <h1>Мои заказы</h1>
+        <span className="eyebrow">YOUR PURCHASES</span>
+        <h1>My orders</h1>
       </div>
       {!orders.length ? (
         <Empty
-          title="Заказов пока нет"
-          text="Здесь появятся ваши покупки и их статусы."
+          title="No orders yet"
+          text="Your purchases and their statuses will appear here."
         >
           <button className="button primary" onClick={() => go("catalog")}>
-            Открыть каталог
+            Open catalog
           </button>
         </Empty>
       ) : (
@@ -241,7 +241,7 @@ export function Orders({ orders, items, go, changeStatus }) {
             <section className="order-card" key={o.id}>
               <div className="order-header">
                 <div>
-                  <h3>Заказ № {o.id}</h3>
+                  <h3>Order № {o.id}</h3>
                   <span>
                     {date(o.created_at)} · {o.address}
                   </span>
@@ -267,7 +267,7 @@ export function Orders({ orders, items, go, changeStatus }) {
                           changeStatus(i.id, "cancelled", "orders")
                         }
                       >
-                        Отменить товар
+                        Cancel item
                       </button>
                     )}
                     {i.status === "shipped" && (
@@ -277,12 +277,12 @@ export function Orders({ orders, items, go, changeStatus }) {
                           changeStatus(i.id, "completed", "orders")
                         }
                       >
-                        Подтвердить получение
+                        Confirm receipt
                       </button>
                     )}
                     {i.status === "completed" && (
                       <NavLink page="product" id={i.product_id} go={go}>
-                        Оставить отзыв
+                        Leave feedback
                       </NavLink>
                     )}
                   </OrderItem>
@@ -297,13 +297,13 @@ export function Orders({ orders, items, go, changeStatus }) {
 export function Chat({ data, user, go, sendMessage }) {
   const [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
-  if (!data) return <p className="loading">Загружаем переписку…</p>;
+  if (!data) return <p className="loading">Loading correspondence...</p>;
   return (
     <>
-      <Breadcrumb go={go}>Сообщения</Breadcrumb>
+      <Breadcrumb go={go}>Messages</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">ЗАКАЗ № {data.item.order_id}</span>
-        <h1>Переписка</h1>
+        <span className="eyebrow">ORDER № {data.item.order_id}</span>
+        <h1>Correspondence</h1>
         <p>
           {data.item.product_name} · {data.item.seller}
         </p>
@@ -313,8 +313,8 @@ export function Chat({ data, user, go, sendMessage }) {
           {!data.messages.length && (
             <Empty
               icon="message"
-              title="Начните диалог"
-              text="Здесь можно согласовать доставку и уточнить детали заказа."
+              title="Start a dialogue"
+              text="Here you can coordinate delivery and clarify order details."
             />
           )}
           {data.messages.map((m) => (
@@ -338,15 +338,15 @@ export function Chat({ data, user, go, sendMessage }) {
           }}
         >
           <input
-            aria-label="Сообщение"
+            aria-label="Message"
             required
             maxLength={2000}
-            placeholder="Напишите сообщение"
+            placeholder="Write a message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
           <button className="button primary" disabled={busy}>
-            <MessageCircle size={17} /> Отправить
+            <MessageCircle size={17} /> Send
           </button>
         </form>
       </section>
