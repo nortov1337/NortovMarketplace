@@ -193,8 +193,31 @@ img {
   line-height: 17px;
   text-align: center;
 }
+.category-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.category-arrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #f5f3f5;
+  color: #2d2632;
+  cursor: pointer;
+}
+.category-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
 .category-bar {
   display: flex;
+  flex: 1;
+  min-width: 0;
   gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -208,6 +231,7 @@ img {
   white-space: nowrap;
 }
 .category-bar button {
+  flex: 0 0 auto;
   padding: 10px 16px;
   border-radius: 30px;
   background: #f5f3f5;

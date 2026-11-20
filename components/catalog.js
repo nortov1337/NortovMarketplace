@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ReportForm } from "./reports";
 import {
   ProductCard,
@@ -29,10 +30,34 @@ export function Catalog({
 }) {
   const [maxPrice, setMaxPrice] = useState("");
   const [inStock, setInStock] = useState(false);
+  const categoryBar = useRef(null);
+  const [categoryScroll, setCategoryScroll] = useState({
+    left: false,
+    right: false,
+  });
   const options = [
     ...new Set([...categories, ...products.map((p) => p.category)]),
   ];
+  const categoryNames = JSON.stringify(options);
   const selected = options.includes(category) ? category : null;
+  useEffect(() => {
+    const bar = categoryBar.current;
+    if (!bar) return;
+    const updateScroll = () => {
+      setCategoryScroll({
+        left: bar.scrollLeft > 1,
+        right: bar.scrollLeft + bar.clientWidth < bar.scrollWidth - 1,
+      });
+    };
+    const observer = new ResizeObserver(updateScroll);
+    observer.observe(bar);
+    bar.addEventListener("scroll", updateScroll, { passive: true });
+    updateScroll();
+    return () => {
+      observer.disconnect();
+      bar.removeEventListener("scroll", updateScroll);
+    };
+  }, [categoryNames, onlyFavorites]);
   const term = search.toLowerCase().trim();
   const visible = products.filter(
     (p) =>
@@ -52,17 +77,51 @@ export function Catalog({
     <>
       {!onlyFavorites && (
         <>
-          <div className="category-bar" aria-label="Categories">
-            {[null, ...options].map((c) => (
-              <button
-                aria-pressed={selected === c}
-                className={selected === c ? "active" : ""}
-                key={c === null ? "all-products" : `category-${c}`}
-                onClick={() => setCategory(c)}
-              >
-                {c ?? "All products"}
-              </button>
-            ))}
+          <div className="category-navigation">
+            <button
+              className="category-arrow"
+              type="button"
+              aria-label="Scroll categories left"
+              disabled={!categoryScroll.left}
+              onClick={() =>
+                categoryBar.current?.scrollBy({
+                  left: -categoryBar.current.clientWidth * 0.8,
+                  behavior: "smooth",
+                })
+              }
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div
+              className="category-bar"
+              ref={categoryBar}
+              aria-label="Categories"
+            >
+              {[null, ...options].map((c) => (
+                <button
+                  aria-pressed={selected === c}
+                  className={selected === c ? "active" : ""}
+                  key={c === null ? "all-products" : `category-${c}`}
+                  onClick={() => setCategory(c)}
+                >
+                  {c ?? "All products"}
+                </button>
+              ))}
+            </div>
+            <button
+              className="category-arrow"
+              type="button"
+              aria-label="Scroll categories right"
+              disabled={!categoryScroll.right}
+              onClick={() =>
+                categoryBar.current?.scrollBy({
+                  left: categoryBar.current.clientWidth * 0.8,
+                  behavior: "smooth",
+                })
+              }
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
           <section className="hero">
             <div className="hero-content">
