@@ -1,10 +1,15 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { api, url } from "@/lib/client";
-import { Header, Footer, Alert, MissingFavorites } from "@/components/ui";
+import { Header, Alert, Empty, MissingFavorites } from "@/components/ui";
 import { Catalog, Product, Storefront } from "@/components/catalog";
 import { Cart, Orders, Chat } from "@/components/buyer";
-import { Auth, Account, Seller, Admin, Help } from "@/components/account";
+import { Auth, Account, Seller, Help } from "@/components/account";
+
+const Admin = dynamic(() => import("@/components/admin"), {
+  loading: () => <p className="loading">Loading administration…</p>,
+});
 
 const protectedPages = new Set([
   "account",
@@ -17,11 +22,11 @@ export default function Home() {
   const [page, setPage] = useState("catalog"),
     [id, setId] = useState(null),
     [search, setSearch] = useState(""),
-    [category, setCategory] = useState("All"),
+    [category, setCategory] = useState(null),
     [sort, setSort] = useState("new");
   const [user, setUser] = useState(null),
     [ready, setReady] = useState(false),
-    [products, setProducts] = useState([]),
+    [catalog, setCatalog] = useState({ products: [], categories: [] }),
     [cart, setCart] = useState({}),
     [favorites, setFavorites] = useState([]);
   const [config, setConfig] = useState({}),
@@ -34,13 +39,14 @@ export default function Home() {
     [orders, setOrders] = useState(null),
     [chat, setChat] = useState(null),
     [admin, setAdmin] = useState(null),
+    [adminError, setAdminError] = useState(""),
     [alert, setAlert] = useState(null);
   const notify = (message, type = "success") => setAlert({ message, type });
   const go = useCallback((next, identifier = null) => {
     const query = url(next, identifier);
     if (window.location.pathname + window.location.search === query) return;
     if (next === "favorites") {
-      setCategory("All");
+      setCategory(null);
       setSearch("");
     }
     window.history.pushState({}, "", query);
@@ -51,7 +57,7 @@ export default function Home() {
   }, []);
   const reloadProducts = useCallback(async () => {
     const result = await api("products");
-    setProducts(result.products);
+    setCatalog(result);
     return result.products;
   }, []);
   const loadPersonal = useCallback(async () => {
@@ -131,13 +137,17 @@ export default function Home() {
           const r = await api("messages", null, { id });
           if (!cancelled) setChat(r);
         }
-        if (page === "admin") {
+        if (page === "admin" && user?.is_admin) {
           setAdmin(null);
+          setAdminError("");
           const r = await api("admin");
           if (!cancelled) setAdmin(r);
         }
       } catch (e) {
-        if (!cancelled) notify(e.message, "error");
+        if (!cancelled) {
+          if (page === "admin") setAdminError(e.message);
+          else notify(e.message, "error");
+        }
       }
     };
     load();
@@ -343,12 +353,20 @@ export default function Home() {
   };
   const adminAction = async (name, data) => {
     const r = await action(name, data);
-    if (r) {
-      setAdmin(await api("admin"));
-      await reloadProducts();
+    if (!r) return false;
+    try {
+      const [updated] = await Promise.all([api("admin"), reloadProducts()]);
+      setAdmin(updated);
       notify("Changes saved");
+    } catch {
+      notify(
+        "Changes saved. Refresh the page to see the latest data.",
+        "error",
+      );
     }
+    return true;
   };
+  const { products, categories } = catalog;
   const count = Object.values(cart).reduce((sum, n) => sum + Number(n), 0);
   return (
     <div className="app">
@@ -373,8 +391,10 @@ export default function Home() {
             {page === "catalog" && (
               <Catalog
                 products={products}
+                categories={categories}
                 go={go}
                 search={search}
+                setSearch={setSearch}
                 category={category}
                 setCategory={setCategory}
                 sort={sort}
@@ -391,8 +411,7 @@ export default function Home() {
                   products={products}
                   go={go}
                   search={search}
-                  category={category}
-                  setCategory={setCategory}
+                  setSearch={setSearch}
                   sort={sort}
                   setSort={setSort}
                   favorites={favorites}
@@ -487,14 +506,30 @@ export default function Home() {
                 sendMessage={sendMessage}
               />
             )}
-            {page === "admin" && user && (
-              <Admin data={admin} go={go} action={adminAction} />
-            )}
+            {page === "admin" &&
+              user &&
+              (user.is_admin && !adminError ? (
+                <Admin data={admin} go={go} action={adminAction} />
+              ) : (
+                <Empty
+                  icon="bag"
+                  title="Administration"
+                  text={
+                    adminError || "This page requires an administrator account."
+                  }
+                >
+                  <button
+                    className="button secondary"
+                    onClick={() => go("account")}
+                  >
+                    Back to account
+                  </button>
+                </Empty>
+              ))}
             {page === "help" && <Help go={go} />}
           </>
         )}
       </main>
-      <Footer go={go} />
     </div>
   );
 }

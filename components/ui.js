@@ -55,6 +55,11 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
             <NavLink page="help" go={go}>
               Help
             </NavLink>
+            {user?.is_admin ? (
+              <NavLink page="admin" go={go}>
+                Administration
+              </NavLink>
+            ) : null}
           </div>
         </div>
       </div>
@@ -103,61 +108,6 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
         </div>
       </header>
     </>
-  );
-}
-export function Footer({ go }) {
-  return (
-    <footer className="footer">
-      <div className="wrap footer-grid">
-        <div>
-          <NavLink page="catalog" go={go} className="brand footer-brand">
-            antitrump<span>.</span>
-          </NavLink>
-          <p>
-            Marketplace of good finds
-            <br />
-            for every day.
-          </p>
-        </div>
-        <div>
-          <b>For buyers</b>
-          <NavLink page="catalog" go={go}>
-            Catalog
-          </NavLink>
-          <NavLink page="orders" go={go}>
-            My orders
-          </NavLink>
-          <NavLink page="help" go={go}>
-            How does this work
-          </NavLink>
-        </div>
-        <div>
-          <b>For sellers</b>
-          <NavLink page="seller" go={go}>
-            Personal account
-          </NavLink>
-          <NavLink page="help" go={go}>
-            Orders and delivery
-          </NavLink>
-        </div>
-        <div>
-          <b>Account</b>
-          <NavLink page="account" go={go}>
-            My profile
-          </NavLink>
-          <NavLink page="favorites" go={go}>
-            Favorites
-          </NavLink>
-          <NavLink page="cart" go={go}>
-            Basket
-          </NavLink>
-        </div>
-      </div>
-      <div className="wrap footer-bottom">
-        © {new Date().getFullYear()} antitrump{" "}
-        <span>Made for a good shopping experience</span>
-      </div>
-    </footer>
   );
 }
 export function ProductCard({ p, go, favorite, toggleFavorite, add }) {

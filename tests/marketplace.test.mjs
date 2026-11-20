@@ -432,6 +432,112 @@ test("marketplace transactions, permissions, images and moderation", async (t) =
   assert.equal((await get("admin", seller.cookie)).body.audit.length, 4);
 });
 
+test("categories are selectable, managed by admins and retained on existing listings", async (t) => {
+  const { dir, post, get } = await launch(t);
+  const seller = await post("register", {
+    name: "Category seller",
+    email: "categories@example.test",
+    password: "password-123",
+  });
+  const admin = await post("register", {
+    name: "Category admin",
+    email: "category-admin@example.test",
+    password: "password-123",
+  });
+  const db = new DatabaseSync(path.join(dir, "marketplace.sqlite"));
+  db.prepare("UPDATE users SET is_admin=1 WHERE id=?").run(admin.body.user.id);
+  db.close();
+
+  const initial = (await get("products")).body;
+  assert.equal(initial.products.length, 0);
+  assert.ok(initial.categories.includes("House"));
+  const product = {
+    name: "Ceramic mug",
+    description: "Handmade mug",
+    category: "Pottery",
+    price: 500,
+    stock: 1,
+  };
+  assert.equal((await post("product", product, seller.cookie)).status, 400);
+  assert.equal(
+    (await post("adminCategory", { name: "Pottery" }, seller.cookie)).status,
+    403,
+  );
+  assert.equal(
+    (await post("adminCategory", { name: "Pottery" }, admin.cookie)).status,
+    200,
+  );
+  assert.equal(
+    (await post("adminCategory", { name: "pottery" }, admin.cookie)).status,
+    409,
+  );
+  assert.ok(
+    (await get("seller", seller.cookie)).body.categories.includes("Pottery"),
+  );
+  assert.equal((await post("product", product, seller.cookie)).status, 200);
+
+  const overview = (await get("admin", admin.cookie)).body;
+  const category = overview.categories.find(({ name }) => name === "Pottery");
+  assert.equal(category.product_count, 1);
+  const id = overview.products[0].id;
+  assert.equal(
+    (
+      await post(
+        "adminCategory",
+        { id: category.id, name: "Ceramics" },
+        admin.cookie,
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await post(
+        "adminCategory",
+        { id: category.id, active: false },
+        admin.cookie,
+      )
+    ).status,
+    200,
+  );
+  const archived = (await get("products")).body;
+  assert.equal(archived.products[0].category, "Ceramics");
+  assert.ok(!archived.categories.includes("Ceramics"));
+  assert.ok(!archived.categories.includes("Pottery"));
+  assert.equal(
+    (await post("product", { ...product, category: "Ceramics" }, seller.cookie))
+      .status,
+    400,
+  );
+  assert.equal(
+    (
+      await post(
+        "product",
+        { ...product, id, category: "Ceramics" },
+        seller.cookie,
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await post(
+        "adminCategory",
+        { id: category.id, active: true },
+        admin.cookie,
+      )
+    ).status,
+    200,
+  );
+  assert.ok((await get("products")).body.categories.includes("Ceramics"));
+  assert.equal(
+    (await get("admin", admin.cookie)).body.audit.filter(
+      (entry) => entry.target_type === "category",
+    ).length,
+    4,
+  );
+});
+
 test("email verification and password recovery invalidate old sessions", async (t) => {
   const { SMTPServer } = await import("smtp-server");
   const messages = [];
@@ -546,6 +652,7 @@ test("existing database is migrated without losing products", async (t) => {
   assert.equal(result.status, 200);
   assert.equal(result.body.products[0].name, "Existing item");
   assert.equal(result.body.products[0].stock, 4);
+  assert.ok(result.body.categories.includes("Home"));
 });
 
 test("database backup is consistent and never overwrites a file", async (t) => {

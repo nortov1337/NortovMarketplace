@@ -14,9 +14,11 @@ import { money, date } from "@/lib/client";
 
 export function Catalog({
   products,
+  categories = [],
   go,
   search,
-  category,
+  setSearch,
+  category = null,
   setCategory,
   sort,
   setSort,
@@ -25,13 +27,21 @@ export function Catalog({
   add,
   onlyFavorites = false,
 }) {
-  const categories = ["All", ...new Set(products.map((p) => p.category))];
-  let visible = products.filter(
+  const [maxPrice, setMaxPrice] = useState("");
+  const [inStock, setInStock] = useState(false);
+  const options = [
+    ...new Set([...categories, ...products.map((p) => p.category)]),
+  ];
+  const selected = options.includes(category) ? category : null;
+  const term = search.toLowerCase().trim();
+  const visible = products.filter(
     (p) =>
-      (category === "All" || category === p.category) &&
-      `${p.name} ${p.description} ${p.seller}`
+      (selected === null || selected === p.category) &&
+      (!inStock || p.stock > 0) &&
+      (maxPrice === "" || p.price <= Number(maxPrice)) &&
+      `${p.name} ${p.description} ${p.seller} ${p.category}`
         .toLowerCase()
-        .includes(search.toLowerCase().trim()) &&
+        .includes(term) &&
       (!onlyFavorites || favorites.includes(p.id)),
   );
   if (sort === "low") visible.sort((a, b) => a.price - b.price);
@@ -43,13 +53,14 @@ export function Catalog({
       {!onlyFavorites && (
         <>
           <div className="category-bar" aria-label="Categories">
-            {categories.map((c) => (
+            {[null, ...options].map((c) => (
               <button
-                className={category === c ? "active" : ""}
-                key={c}
+                aria-pressed={selected === c}
+                className={selected === c ? "active" : ""}
+                key={c === null ? "all-products" : `category-${c}`}
                 onClick={() => setCategory(c)}
               >
-                {c === "All" ? "All products" : c}
+                {c ?? "All products"}
               </button>
             ))}
           </div>
@@ -111,9 +122,7 @@ export function Catalog({
                 ? "Favorites"
                 : search
                   ? `Search: ${search}`
-                  : category === "All"
-                    ? "Product catalog"
-                    : category}
+                  : (selected ?? "Product catalog")}
             </h2>
             <p>
               {visible.length
@@ -130,6 +139,40 @@ export function Catalog({
               <option value="rating">By rating</option>
             </select>
           </label>
+        </div>
+        <div className="catalog-filters">
+          <label className="field">
+            <span>Maximum price, ₽</span>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              placeholder="Any price"
+            />
+          </label>
+          <label className="stock-filter">
+            <input
+              type="checkbox"
+              checked={inStock}
+              onChange={(e) => setInStock(e.target.checked)}
+            />
+            In stock only
+          </label>
+          {(term || selected !== null || maxPrice !== "" || inStock) && (
+            <button
+              className="button ghost small"
+              onClick={() => {
+                setSearch("");
+                setCategory?.(null);
+                setMaxPrice("");
+                setInStock(false);
+              }}
+            >
+              Clear filters
+            </button>
+          )}
         </div>
         {visible.length ? (
           <div className="product-grid">
@@ -148,29 +191,28 @@ export function Catalog({
           <Empty
             icon={onlyFavorites ? "heart" : "bag"}
             title={
-              onlyFavorites ? "Save what you like" : "Products coming here soon"
+              onlyFavorites && favorites.length === 0
+                ? "Save what you like"
+                : !products.length && !onlyFavorites
+                  ? "Products coming here soon"
+                  : "No matching products"
             }
             text={
-              onlyFavorites
+              onlyFavorites && favorites.length === 0
                 ? "Click on the heart on the product card to return to it later."
-                : products.length
-                  ? "Try changing your request or selecting a different category."
+                : products.length || onlyFavorites
+                  ? "Try changing your search or filters."
                   : "Sellers can add products in their personal account."
             }
           >
-            <button
-              className="button secondary"
-              onClick={() => {
-                setCategory("All");
-                go(onlyFavorites ? "catalog" : "seller");
-              }}
-            >
-              {onlyFavorites
-                ? "Go to catalog"
-                : products.length
-                  ? "Reset category"
-                  : "Open seller’s account"}
-            </button>
+            {(onlyFavorites || products.length === 0) && (
+              <button
+                className="button secondary"
+                onClick={() => go(onlyFavorites ? "catalog" : "seller")}
+              >
+                {onlyFavorites ? "Go to catalog" : "Open seller’s account"}
+              </button>
+            )}
           </Empty>
         )}
       </section>

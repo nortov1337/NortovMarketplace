@@ -7,11 +7,11 @@ A Next.js marketplace for customers and independent sellers. Buyers and sellers 
 ## Features
 
 - Accounts, optional email verification and password recovery via SMTP.
-- Searchable catalog, product and store pages, favorites and shopping cart.
+- Searchable catalog with category, price and availability filters, product and store pages, favorites and shopping cart.
 - Seller dashboard for products, inventory, images and orders.
 - Orders with price and stock checks, cancellations, tracking and duplicate-submission protection.
 - Order messages, reviews, product reports and administrator moderation.
-- Administration dashboard with order overview, moderation search and an audit log of administrative actions.
+- Administration dashboard with category management, order overview, status filters, moderation search and an audit log of administrative actions.
 
 Prices are displayed in Russian rubles (RUB). Automated delivery integrations are not included.
 
@@ -56,7 +56,9 @@ Without SMTP, password recovery emails are unavailable. If verification is requi
 
 Register an account, then run `npm run admin -- email@example.com` on the server with the same DATA_DIR as the application. This grants administrator rights to an existing account. Restrict server access: the command does not require confirmation through the web interface.
 
-The administration screen shows overall counts and the latest 500 records in each section. Search applies to those loaded records. Moderation actions are recorded in the database with the administrator, target, action and time. Administrative access includes personal information, so grant it only to trusted operators.
+Open **Administration** from the header or account page. The **Categories** tab lists all categories and supports adding, renaming, archiving and restoring them. Renaming a category updates its products. Products in archived categories stay in the catalog, and sellers can keep an archived category on an existing product. Only active categories can be assigned to new products.
+
+The other sections show up to 500 recent records each. Search and status filters apply to the loaded records. Category changes and moderation actions are recorded in the audit log with the administrator, target, action and time.
 
 ## Docker
 
