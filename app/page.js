@@ -1,34 +1,500 @@
-﻿'use client';
-import { useState, useEffect, useCallback } from 'react';
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { api, url } from "@/lib/client";
+import { Header, Footer, Alert, MissingFavorites } from "@/components/ui";
+import { Catalog, Product, Storefront } from "@/components/catalog";
+import { Cart, Orders, Chat } from "@/components/buyer";
+import { Auth, Account, Seller, Admin, Help } from "@/components/account";
 
-const money = n => Number(n).toLocaleString('ru-RU') + ' ₽';
-const statusNames = {new:'Новый',accepted:'Принят',shipped:'Отправлен',completed:'Завершён',cancelled:'Отменён'};
-const emptyProduct = {name:'',description:'',category:'',price:'',stock:'',image:''};
-async function api(view, data) { const res=await fetch('/api'+(view?'?view='+view:''),data?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}:{cache:'no-store'}); const result=await res.json(); if(!res.ok) throw Error(result.error || 'Ошибка запроса'); return result; }
+const protectedPages = new Set([
+  "account",
+  "orders",
+  "seller",
+  "chat",
+  "admin",
+]);
 export default function Home() {
- const [products,setProducts]=useState([]),[user,setUser]=useState(null),[page,setPage]=useState('catalog'),[query,setQuery]=useState(''),[category,setCategory]=useState('Все'),[sort,setSort]=useState('new'),[cart,setCart]=useState({}),[favorites,setFavorites]=useState([]),[error,setError]=useState(''),[notice,setNotice]=useState(''),[mode,setMode]=useState('login'),[form,setForm]=useState({}),[product,setProduct]=useState(emptyProduct),[seller,setSeller]=useState({products:[],items:[]}),[orders,setOrders]=useState({orders:[],items:[]});
- const refresh=useCallback(async()=>{const r=await api('products');setProducts(r.products)},[]);
- useEffect(()=>{ try {setCart(JSON.parse(localStorage.getItem('nortov-cart')||'{}'));setFavorites(JSON.parse(localStorage.getItem('nortov-fav')||'[]'))} catch {} refresh().catch(e=>setError(e.message));api('me').then(r=>setUser(r.user)).catch(()=>{});},[refresh]);
- const saveCart=c=>{setCart(c);localStorage.setItem('nortov-cart',JSON.stringify(c))};
- const toggleFavorite=id=>{const next=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];setFavorites(next);localStorage.setItem('nortov-fav',JSON.stringify(next))};
- const go=async next=>{setError('');setNotice('');setPage(next);try{if(next==='seller')setSeller(await api('seller'));if(next==='orders')setOrders(await api('orders'));if(next==='catalog')await refresh()}catch(e){setError(e.message)}};
- const send=async(action,data={})=>{setError('');try{return await api('',{action,...data})}catch(e){setError(e.message);return null}};
- const login=async e=>{e.preventDefault();const r=await send(mode,form);if(r){setUser(r.user);setForm({});setNotice('Вы вошли в аккаунт');go('catalog')}};
- const logout=async()=>{await send('logout');setUser(null);setForm({});go('catalog')};
- const saveProduct=async e=>{e.preventDefault();const r=await send('product',product);if(r){setProduct(emptyProduct);setSeller(await api('seller'));await refresh();setNotice('Товар сохранён')}};
- const placeOrder=async e=>{e.preventDefault();const items=Object.entries(cart).map(([id,quantity])=>({id:Number(id),quantity}));const r=await send('order',{...form,items});if(r){saveCart({});setForm({});await refresh();await go('orders');setNotice('Заказ №'+r.orderId+' оформлен. Продавец увидит его в своём кабинете.')}};
- const changeStatus=async(id,status)=>{const r=await send('status',{id,status});if(r){setSeller(await api('seller'));await refresh()}};
- const changeActive=async(p)=>{const r=await send('archive',{id:p.id,active:!p.active});if(r){setSeller(await api('seller'));await refresh()}};
- const cats=['Все',...new Set(products.map(p=>p.category))]; let visible=products.filter(p=>(category==='Все'||p.category===category)&&(`${p.name} ${p.description}`.toLowerCase().includes(query.toLowerCase().trim()))&&(page!=='favorites'||favorites.includes(p.id)));if(sort==='low')visible.sort((a,b)=>a.price-b.price);if(sort==='high')visible.sort((a,b)=>b.price-a.price);
- const cartLines=Object.entries(cart).map(([id,qty])=>({p:products.find(p=>p.id===Number(id)),qty})).filter(x=>x.p);const count=Object.values(cart).reduce((a,b)=>a+Number(b),0);
- const field=(name,label,type='text',required=true)=> <label className="field">{label}<input required={required} type={type} value={form[name]||''} onChange={e=>setForm({...form,[name]:e.target.value})}/></label>;
- return <><div className="top"><span>Покупки для каждого дня</span><span>Маркетплейс Nortov</span></div><header><button className="logo link" onClick={()=>go('catalog')}>nortov<span>.</span></button><button className="catalog" onClick={()=>go('catalog')}>☰ &nbsp; Каталог</button><label className="search"><span>⌕</span><input value={query} onChange={e=>{setQuery(e.target.value);setPage('catalog')}} placeholder="Найти на Nortov" aria-label="Поиск товаров"/></label><button className="headbutton" onClick={()=>go('favorites')}>♡ <small>Избранное</small></button><button className="headbutton" onClick={()=>go('cart')}>▢ <small>Корзина {count||''}</small></button><button className="headbutton" onClick={()=>go(user?'account':'auth')}>♙ <small>{user?'Кабинет':'Войти'}</small></button></header><main>
- {(error||notice)&&<div role="status" className={error?'alert error':'alert'}>{error||notice}</div>}
- {(page==='catalog'||page==='favorites')&&<><nav>{cats.map(c=><button key={c} className={category===c?'active':''} onClick={()=>setCategory(c)}>{c}</button>)}</nav>{page==='catalog'&&<section className="hero"><div><span className="eyebrow">НОВЫЕ ИДЕИ КАЖДЫЙ ДЕНЬ</span><h1>Всё, что<br/>нравится вам</h1><p>Находки для дома, гардероба и каждого дня — в одном месте.</p><button onClick={()=>document.getElementById('products').scrollIntoView({behavior:'smooth'})}>Смотреть товары</button></div><div className="hero-art"><span>✳</span><strong>Хорошие<br/>вещи<br/>рядом.</strong></div></section>}<section id="products"><div className="section-head"><div><p className="eyebrow dark">ВЫБИРАЙТЕ С УДОВОЛЬСТВИЕМ</p><h2>{page==='favorites'?'Избранное':'Каталог товаров'}</h2></div><select value={sort} onChange={e=>setSort(e.target.value)} aria-label="Сортировка"><option value="new">Сначала новые</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option></select></div><p id="result">{visible.length?`Товаров: ${visible.length}`:'Товаров пока нет. Измените поиск или добавьте товар в кабинете продавца.'}</p><div className="grid">{visible.map(p=><article className="card" key={p.id}><div className="photo">{p.image?<img src={p.image} alt={p.name}/>:<span>✳</span>}<button className="heart" onClick={()=>toggleFavorite(p.id)} aria-label="Добавить в избранное">{favorites.includes(p.id)?'♥':'♡'}</button></div><p className="price">{money(p.price)}</p><p className="name">{p.name}</p><p className="description">{p.description}</p><p className="rating">{p.seller} · {p.stock>0?`В наличии: ${p.stock}`:'Нет в наличии'}</p><button className="add" disabled={!p.stock} onClick={()=>saveCart({...cart,[p.id]:Math.min((cart[p.id]||0)+1,p.stock)})}>В корзину</button></article>)}</div></section></>}
- {page==='auth'&&<section className="panel narrow"><h2>{mode==='login'?'Вход':'Регистрация'}</h2><form onSubmit={login} className="form">{mode==='register'&&field('name','Имя')}{field('email','Электронная почта','email')}{field('password','Пароль (минимум 8 символов)','password')}<button className="catalog">{mode==='login'?'Войти':'Создать аккаунт'}</button></form><button className="textbutton" onClick={()=>{setMode(mode==='login'?'register':'login');setError('')}}>{mode==='login'?'Создать аккаунт':'У меня уже есть аккаунт'}</button></section>}
- {page==='account'&&<section className="panel"><h2>Здравствуйте, {user?.name}</h2><p>{user?.email}</p><div className="actions"><button className="catalog" onClick={()=>go('orders')}>Мои заказы</button><button className="add" onClick={()=>go('seller')}>Кабинет продавца</button><button className="add" onClick={logout}>Выйти</button></div></section>}
- {page==='cart'&&<section className="panel"><h2>Корзина</h2>{cartLines.length===0?<p>В корзине пока пусто.</p>:<><div>{cartLines.map(({p,qty})=><div className="row" key={p.id}><div><b>{p.name}</b><p>{money(p.price)} · доступно {p.stock}</p></div><div className="actions"><button className="add" onClick={()=>{const c={...cart};if(qty<=1)delete c[p.id];else c[p.id]=qty-1;saveCart(c)}}>−</button><span>{qty}</span><button className="add" onClick={()=>saveCart({...cart,[p.id]:Math.min(qty+1,p.stock)})}>+</button><b>{money(p.price*qty)}</b></div></div>)}</div><h3>Итого: {money(cartLines.reduce((n,x)=>n+x.p.price*x.qty,0))}</h3>{!user?<button className="catalog" onClick={()=>go('auth')}>Войти для оформления</button>:<form className="form narrow" onSubmit={placeOrder}><h3>Получатель и доставка</h3>{field('name','Имя получателя')}{field('phone','Телефон','tel')}{field('address','Адрес доставки')}{field('comment','Комментарий','text',false)}<p>Заказ оформляется без онлайн-оплаты. Способ получения и оплаты согласуйте с продавцом.</p><button className="catalog">Оформить заказ</button></form>}</>}</section>}
- {page==='orders'&&<section className="panel"><h2>Мои заказы</h2>{!orders.orders.length&&<p>У вас пока нет заказов.</p>}{orders.orders.map(o=><div className="order" key={o.id}><h3>Заказ №{o.id} · {money(o.total)}</h3><p>{o.created_at} · {o.address}</p>{orders.items.filter(i=>i.order_id===o.id).map(i=><div className="row" key={i.id}><span>{i.product_name} × {i.quantity}</span><b>{statusNames[i.status]}</b></div>)}</div>)}</section>}
- {page==='seller'&&<section className="panel"><h2>Кабинет продавца</h2><p>Добавляйте товары и обрабатывайте поступившие заказы.</p><div className="seller-layout"><div><h3>{product.id?'Редактировать товар':'Новый товар'}</h3><form className="form" onSubmit={saveProduct}>{[['name','Название'],['category','Категория'],['price','Цена, ₽'],['stock','Остаток'],['image','Ссылка на фото (https)']].map(([key,label])=><label className="field" key={key}>{label}<input required={key!=='image'} type={['price','stock'].includes(key)?'number':'text'} min={key==='stock'?'0':key==='price'?'1':undefined} value={product[key]} onChange={e=>setProduct({...product,[key]:e.target.value})}/></label>)}<label className="field">Описание<textarea required value={product.description} onChange={e=>setProduct({...product,description:e.target.value})}/></label><button className="catalog">Сохранить товар</button>{product.id&&<button type="button" className="add" onClick={()=>setProduct(emptyProduct)}>Отменить редактирование</button>}</form></div><div><h3>Ваши товары</h3>{!seller.products.length&&<p>Добавьте первый товар.</p>}{seller.products.map(p=><div className="row" key={p.id}><div><b>{p.name}</b><p>{money(p.price)} · Остаток: {p.stock} · {p.active?'В продаже':'Снят с продажи'}</p></div><div className="actions"><button className="add" onClick={()=>{setProduct(p);window.scrollTo({top:0,behavior:'smooth'})}}>Изменить</button><button className="add" onClick={()=>changeActive(p)}>{p.active?'Снять':'Вернуть'}</button></div></div>)}<h3>Заказы покупателей</h3>{!seller.items.length&&<p>Заказов пока нет.</p>}{seller.items.map(i=><div className="order" key={i.id}><b>Заказ №{i.order_id}: {i.product_name} × {i.quantity}</b><p>{i.name} · {i.phone}<br/>{i.address}</p><p>{money(i.price*i.quantity)} · {statusNames[i.status]}</p>{!['cancelled','completed'].includes(i.status)&&<select aria-label="Статус заказа" value={i.status} onChange={e=>changeStatus(i.id,e.target.value)}>{Object.entries(statusNames).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select>}</div>)}</div></div></section>}
- </main><footer><b>nortov.</b><span>Вещи, которые хочется выбрать</span><span>© Nortov</span></footer></>;
+  const [page, setPage] = useState("catalog"),
+    [id, setId] = useState(null),
+    [search, setSearch] = useState(""),
+    [category, setCategory] = useState("Все"),
+    [sort, setSort] = useState("new");
+  const [user, setUser] = useState(null),
+    [ready, setReady] = useState(false),
+    [products, setProducts] = useState([]),
+    [cart, setCart] = useState({}),
+    [favorites, setFavorites] = useState([]);
+  const [config, setConfig] = useState({}),
+    [authMode, setAuthMode] = useState("login"),
+    [token, setToken] = useState(""),
+    [returnTo, setReturnTo] = useState("account");
+  const [detail, setDetail] = useState(null),
+    [storefront, setStorefront] = useState(null),
+    [seller, setSeller] = useState(null),
+    [orders, setOrders] = useState(null),
+    [chat, setChat] = useState(null),
+    [admin, setAdmin] = useState(null),
+    [alert, setAlert] = useState(null);
+  const notify = (message, type = "success") => setAlert({ message, type });
+  const go = useCallback((next, identifier = null) => {
+    const query = url(next, identifier);
+    if (window.location.pathname + window.location.search === query) return;
+    if (next === "favorites") {
+      setCategory("Все");
+      setSearch("");
+    }
+    window.history.pushState({}, "", query);
+    setPage(next);
+    setId(identifier ? Number(identifier) : null);
+    setAlert(null);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+  const reloadProducts = useCallback(async () => {
+    const result = await api("products");
+    setProducts(result.products);
+    return result.products;
+  }, []);
+  const loadPersonal = useCallback(async () => {
+    const p = await api("personal");
+    setCart(Object.fromEntries(p.cart.map((x) => [x.product_id, x.quantity])));
+    setFavorites(p.favorites.map((x) => x.product_id));
+  }, []);
+  useEffect(() => {
+    const readLocation = () => {
+      const params = new URLSearchParams(window.location.search);
+      const reset = params.get("reset"),
+        verify = params.get("verify");
+      if (reset || verify) {
+        setPage("auth");
+        setAuthMode(reset ? "reset" : "verify");
+        setToken(reset || verify);
+        return;
+      }
+      setPage(params.get("page") || "catalog");
+      setId(params.get("id") ? Number(params.get("id")) : null);
+    };
+    readLocation();
+    window.addEventListener("popstate", readLocation);
+    try {
+      setCart(JSON.parse(localStorage.getItem("nortov-guest-cart") || "{}"));
+      setFavorites(
+        JSON.parse(localStorage.getItem("nortov-guest-favorites") || "[]"),
+      );
+    } catch {}
+    Promise.allSettled([
+      reloadProducts(),
+      api("config").then(setConfig),
+      api("me").then(async (r) => {
+        setUser(r.user);
+        if (r.user) await loadPersonal();
+      }),
+    ]).then((results) => {
+      if (results[0].status === "rejected")
+        notify("Не удалось загрузить каталог. Обновите страницу.", "error");
+      setReady(true);
+    });
+    return () => window.removeEventListener("popstate", readLocation);
+  }, [reloadProducts, loadPersonal]);
+  useEffect(() => {
+    if (!ready) return;
+    if (protectedPages.has(page) && !user) {
+      setReturnTo(page === "chat" ? "orders" : page);
+      setAuthMode("login");
+      go("auth");
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      try {
+        if (page === "product") {
+          setDetail(null);
+          const r = await api("product", null, { id });
+          if (!cancelled) setDetail(r);
+        }
+        if (page === "store") {
+          setStorefront(null);
+          const r = await api("store", null, { id });
+          if (!cancelled) setStorefront(r);
+        }
+        if (page === "seller") {
+          setSeller(null);
+          const r = await api("seller");
+          if (!cancelled) setSeller(r);
+        }
+        if (page === "orders") {
+          setOrders(null);
+          const r = await api("orders");
+          if (!cancelled) setOrders(r);
+        }
+        if (page === "chat") {
+          setChat(null);
+          const r = await api("messages", null, { id });
+          if (!cancelled) setChat(r);
+        }
+        if (page === "admin") {
+          setAdmin(null);
+          const r = await api("admin");
+          if (!cancelled) setAdmin(r);
+        }
+      } catch (e) {
+        if (!cancelled) notify(e.message, "error");
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, id, user, ready, go]);
+  const action = async (name, data = {}) => {
+    try {
+      return await api("", { action: name, ...data });
+    } catch (e) {
+      notify(e.message, "error");
+      return null;
+    }
+  };
+  const authSubmit = async (mode, form) => {
+    const result = await action(mode, form);
+    if (!result) return false;
+    if (result.user) {
+      setUser(result.user);
+      const guestCart = cart,
+        guestFavorites = favorites;
+      const merges = [
+        ...Object.entries(guestCart).map(([id, quantity]) =>
+          api("", { action: "cartSet", id: Number(id), quantity }),
+        ),
+        ...guestFavorites.map((id) =>
+          api("", { action: "favoriteSet", id, enabled: true }),
+        ),
+      ];
+      const settled = await Promise.allSettled(merges);
+      if (settled.every((x) => x.status === "fulfilled")) {
+        localStorage.removeItem("nortov-guest-cart");
+        localStorage.removeItem("nortov-guest-favorites");
+      }
+      await loadPersonal();
+      go(returnTo === "admin" && !result.user.is_admin ? "account" : returnTo);
+      notify(
+        settled.some((x) => x.status === "rejected")
+          ? "Вы вошли. Некоторые товары из гостевой корзины недоступны."
+          : "Вы вошли в аккаунт",
+      );
+      return true;
+    }
+    if (result.verificationPending) {
+      setAuthMode("login");
+      notify("Проверьте почту: мы отправили ссылку для подтверждения.");
+      return true;
+    }
+    if (mode === "verify" || mode === "reset") {
+      setToken("");
+      setAuthMode("login");
+      window.history.replaceState({}, "", url("auth"));
+      notify(
+        mode === "verify"
+          ? "Почта подтверждена. Теперь можно войти."
+          : "Пароль изменён. Войдите с новым паролем.",
+      );
+      return true;
+    }
+    notify("Если адрес зарегистрирован, письмо будет отправлено.");
+    return true;
+  };
+  const logout = async () => {
+    const result = await action("logout");
+    if (!result) return;
+    setUser(null);
+    setCart({});
+    setFavorites([]);
+    setReturnTo("account");
+    go("catalog");
+    notify("Вы вышли из аккаунта");
+  };
+  const updateCart = async (id, quantity) => {
+    if (user) {
+      if (!(await action("cartSet", { id, quantity }))) return;
+      await loadPersonal();
+    } else {
+      const next = { ...cart };
+      if (quantity <= 0) delete next[id];
+      else next[id] = quantity;
+      setCart(next);
+      localStorage.setItem("nortov-guest-cart", JSON.stringify(next));
+    }
+  };
+  const add = async (p) => {
+    const quantity = Math.min((cart[p.id] || 0) + 1, p.stock, 100);
+    await updateCart(p.id, quantity);
+  };
+  const toggleFavorite = async (id) => {
+    const enabled = !favorites.includes(id);
+    if (user) {
+      if (!(await action("favoriteSet", { id, enabled }))) return;
+      await loadPersonal();
+    } else {
+      const next = enabled
+        ? [...favorites, id]
+        : favorites.filter((x) => x !== id);
+      setFavorites(next);
+      localStorage.setItem("nortov-guest-favorites", JSON.stringify(next));
+    }
+  };
+  const checkout = async (form) => {
+    const r = await action("order", form);
+    if (!r) {
+      await reloadProducts();
+      return false;
+    }
+    await loadPersonal();
+    await reloadProducts();
+    go("orders");
+    notify(
+      "Заказ № " +
+        r.orderId +
+        " оформлен. Свяжитесь с продавцом в карточке заказа.",
+    );
+    return true;
+  };
+  const changeStatus = async (itemId, status, context, tracking = "") => {
+    if (
+      status === "cancelled" &&
+      !window.confirm("Отменить этот товар в заказе?")
+    )
+      return;
+    const r = await action("status", { id: itemId, status, tracking });
+    if (!r) return;
+    await reloadProducts();
+    if (context === "orders") setOrders(await api("orders"));
+    else setSeller(await api("seller"));
+    notify("Статус обновлён");
+  };
+  const saveProduct = async (product) => {
+    const r = await action("product", product);
+    if (!r) return false;
+    setSeller(await api("seller"));
+    await reloadProducts();
+    notify("Товар сохранён");
+    return true;
+  };
+  const saveStore = async (profile) => {
+    const r = await action("store", profile);
+    if (!r) return false;
+    setSeller(await api("seller"));
+    await reloadProducts();
+    notify("Магазин сохранён");
+    return true;
+  };
+  const changeActive = async (p) => {
+    const r = await action("archive", { id: p.id, active: !p.active });
+    if (r) {
+      setSeller(await api("seller"));
+      await reloadProducts();
+      notify("Статус товара обновлён");
+    }
+  };
+  const upload = async (file) => {
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const r = await response.json();
+      if (!response.ok) throw Error(r.error);
+      return r.url;
+    } catch (e) {
+      notify(e.message, "error");
+      return null;
+    }
+  };
+  const submitReview = async (id, rating, text) => {
+    const r = await action("review", { id, rating: Number(rating), text });
+    if (!r) return false;
+    setDetail(await api("product", null, { id }));
+    await reloadProducts();
+    notify("Отзыв опубликован");
+    return true;
+  };
+  const submitReport = async (id, reason) => {
+    const r = await action("report", { id, reason });
+    if (!r) return false;
+    notify("Жалоба отправлена модератору");
+    return true;
+  };
+  const sendMessage = async (id, message) => {
+    const r = await action("message", { id, message });
+    if (!r) return false;
+    setChat(await api("messages", null, { id }));
+    return true;
+  };
+  const accountAction = async (name, data) => {
+    const r = await action(name, data);
+    if (!r) return false;
+    if (name === "password") {
+      setUser(null);
+      setCart({});
+      setFavorites([]);
+      go("auth");
+      notify("Пароль обновлён. Войдите снова.");
+    } else {
+      setUser((await api("me")).user);
+      notify("Изменения сохранены");
+    }
+    return true;
+  };
+  const adminAction = async (name, data) => {
+    const r = await action(name, data);
+    if (r) {
+      setAdmin(await api("admin"));
+      await reloadProducts();
+      notify("Изменения сохранены");
+    }
+  };
+  const count = Object.values(cart).reduce((sum, n) => sum + Number(n), 0);
+  return (
+    <div className="app">
+      <Header
+        go={go}
+        user={user}
+        search={search}
+        setSearch={setSearch}
+        count={count}
+        favoriteCount={favorites.length}
+      />
+      <main className="wrap main-content">
+        <Alert
+          message={alert?.message}
+          type={alert?.type}
+          dismiss={() => setAlert(null)}
+        />
+        {!ready ? (
+          <p className="loading">Загружаем Nortov…</p>
+        ) : (
+          <>
+            {page === "catalog" && (
+              <Catalog
+                products={products}
+                go={go}
+                search={search}
+                category={category}
+                setCategory={setCategory}
+                sort={sort}
+                setSort={setSort}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                add={add}
+              />
+            )}
+            {page === "favorites" && (
+              <>
+                <Catalog
+                  onlyFavorites
+                  products={products}
+                  go={go}
+                  search={search}
+                  category={category}
+                  setCategory={setCategory}
+                  sort={sort}
+                  setSort={setSort}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
+                  add={add}
+                />
+                <MissingFavorites
+                  favorites={favorites}
+                  products={products}
+                  toggleFavorite={toggleFavorite}
+                />
+              </>
+            )}
+            {page === "product" && (
+              <Product
+                key={id}
+                detail={detail}
+                go={go}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                add={add}
+                user={user}
+                submitReview={submitReview}
+                submitReport={submitReport}
+              />
+            )}
+            {page === "cart" && (
+              <Cart
+                products={products}
+                cart={cart}
+                updateCart={updateCart}
+                go={go}
+                user={user}
+                checkout={checkout}
+                loginForCheckout={() => {
+                  setReturnTo("cart");
+                  setAuthMode("login");
+                  go("auth");
+                }}
+              />
+            )}
+            {page === "store" && (
+              <Storefront
+                data={storefront}
+                go={go}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                add={add}
+              />
+            )}
+            {page === "auth" && (
+              <Auth
+                mode={authMode}
+                setMode={setAuthMode}
+                config={config}
+                submit={authSubmit}
+                token={token}
+              />
+            )}
+            {page === "account" && user && (
+              <Account
+                user={user}
+                go={go}
+                submit={accountAction}
+                logout={logout}
+              />
+            )}
+            {page === "seller" && user && (
+              <Seller
+                data={seller}
+                go={go}
+                saveProduct={saveProduct}
+                saveStore={saveStore}
+                changeActive={changeActive}
+                changeStatus={changeStatus}
+                upload={upload}
+              />
+            )}
+            {page === "orders" &&
+              user &&
+              (orders ? (
+                <Orders {...orders} go={go} changeStatus={changeStatus} />
+              ) : (
+                <p className="loading">Загружаем заказы…</p>
+              ))}
+            {page === "chat" && user && (
+              <Chat
+                key={id}
+                data={chat}
+                user={user}
+                go={go}
+                sendMessage={sendMessage}
+              />
+            )}
+            {page === "admin" && user && (
+              <Admin data={admin} go={go} action={adminAction} />
+            )}
+            {page === "help" && <Help go={go} />}
+          </>
+        )}
+      </main>
+      <Footer go={go} />
+    </div>
+  );
 }
