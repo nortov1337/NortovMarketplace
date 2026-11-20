@@ -367,7 +367,7 @@ export default function Home() {
           dismiss={() => setAlert(null)}
         />
         {!ready ? (
-          <p className="loading">Loading Nortov…</p>
+          <p className="loading">Loading antitrump…</p>
         ) : (
           <>
             {page === "catalog" && (

@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Nortov — shopping every day",
+  title: "antitrump — shopping every day",
   description: "Things for the home, wardrobe and every day.",
 };
 

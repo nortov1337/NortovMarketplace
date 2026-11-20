@@ -50,7 +50,7 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
           <span>Buy from independent sellers</span>
           <div>
             <NavLink page="seller" go={go}>
-              Sell ​​on Nortov
+              Sell ​​on antitrump
             </NavLink>
             <NavLink page="help" go={go}>
               Help
@@ -61,7 +61,7 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
       <header className="site-header">
         <div className="wrap header-inner">
           <NavLink page="catalog" go={go} className="brand">
-            nortov<span>.</span>
+            antitrump<span>.</span>
           </NavLink>
           <button className="catalog-button" onClick={() => go("catalog")}>
             <Menu size={20} />
@@ -111,7 +111,7 @@ export function Footer({ go }) {
       <div className="wrap footer-grid">
         <div>
           <NavLink page="catalog" go={go} className="brand footer-brand">
-            nortov<span>.</span>
+            antitrump<span>.</span>
           </NavLink>
           <p>
             Marketplace of good finds
@@ -154,7 +154,7 @@ export function Footer({ go }) {
         </div>
       </div>
       <div className="wrap footer-bottom">
-        © {new Date().getFullYear()} Nortov{" "}
+        © {new Date().getFullYear()} antitrump{" "}
         <span>Made for a good shopping experience</span>
       </div>
     </footer>
@@ -170,7 +170,7 @@ export function ProductCard({ p, go, favorite, toggleFavorite, add }) {
           ) : (
             <div className="image-placeholder">
               <ShoppingBag size={48} />
-              <span>nortov.</span>
+              <span>antitrump.</span>
             </div>
           )}
         </NavLink>

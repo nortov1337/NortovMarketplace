@@ -30,7 +30,7 @@ export function Auth({ mode, setMode, config, submit, token }) {
   return (
     <div className="auth-shell">
       <div className="auth-card">
-        <span className="eyebrow">WELCOME TO NORTOV</span>
+        <span className="eyebrow">WELCOME TO ANTITRUMP</span>
         <h1>{heading}</h1>
         <p className="muted">
           {mode === "login"
@@ -273,7 +273,7 @@ export function Seller({
       <Breadcrumb go={go}>Seller’s account</Breadcrumb>
       <div className="page-heading seller-heading">
         <div>
-          <span className="eyebrow">SELL ON NORTOV</span>
+          <span className="eyebrow">SELL ON ANTITRUMP</span>
           <h1>Seller’s account</h1>
           <p>Manage products, orders and your store.</p>
         </div>

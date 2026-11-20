@@ -202,7 +202,7 @@ export function Product({
           ) : (
             <div className="image-placeholder">
               <ShoppingBag size={72} />
-              <span>nortov.</span>
+              <span>antitrump.</span>
             </div>
           )}
         </div>
@@ -341,7 +341,7 @@ export function Storefront({ data, go, favorites, toggleFavorite, add }) {
     <>
       <Breadcrumb go={go}>Shop</Breadcrumb>
       <div className="page-heading">
-        <span className="eyebrow">STORE AT NORTOV</span>
+        <span className="eyebrow">STORE AT ANTITRUMP</span>
         <h1>{data.store.name}</h1>
         {data.store.description && (
           <p className="description-text">{data.store.description}</p>

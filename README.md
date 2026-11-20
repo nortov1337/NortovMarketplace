@@ -1,4 +1,4 @@
-﻿# Nortov Marketplace
+# antitrump Marketplace
 
 A Next.js marketplace for customers and independent sellers. Buyers and sellers arrange payment and delivery directly; online payments are not integrated.
 
