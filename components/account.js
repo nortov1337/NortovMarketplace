@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { DescriptionField } from "./description";
 import {
   Breadcrumb,
   Field,
@@ -432,16 +433,14 @@ export function Seller({
               ))}
             </select>
           </label>
-          <label className="field">
-            <span>Description</span>
-            <textarea
-              required
-              minLength={3}
-              maxLength={3000}
-              value={product.description}
-              onChange={(e) => edit("description", e.target.value)}
-            />
-          </label>
+          <DescriptionField
+            label="Description"
+            required
+            minLength={3}
+            maxLength={3000}
+            value={product.description}
+            onChange={(description) => edit("description", description)}
+          />
           <div className="form-two">
             <Field
               label="Price, ₽"
@@ -522,16 +521,12 @@ export function Seller({
             value={profile.name}
             onChange={(e) => setStore({ ...profile, name: e.target.value })}
           />
-          <label className="field">
-            <span>About the store</span>
-            <textarea
-              maxLength={1000}
-              value={profile.description}
-              onChange={(e) =>
-                setStore({ ...profile, description: e.target.value })
-              }
-            />
-          </label>
+          <DescriptionField
+            label="About the store"
+            maxLength={1000}
+            value={profile.description}
+            onChange={(description) => setStore({ ...profile, description })}
+          />
           <button className="button primary" disabled={busy}>
             Save
           </button>

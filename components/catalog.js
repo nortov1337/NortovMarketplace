@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Description } from "./description";
 import { ReportForm } from "./reports";
 import {
   ProductCard,
@@ -86,7 +87,6 @@ export function Catalog({
               onClick={() =>
                 categoryBar.current?.scrollBy({
                   left: -categoryBar.current.clientWidth * 0.8,
-                  behavior: "smooth",
                 })
               }
             >
@@ -116,7 +116,6 @@ export function Catalog({
               onClick={() =>
                 categoryBar.current?.scrollBy({
                   left: categoryBar.current.clientWidth * 0.8,
-                  behavior: "smooth",
                 })
               }
             >
@@ -141,15 +140,15 @@ export function Catalog({
                 onClick={() =>
                   document
                     .getElementById("catalog-list")
-                    ?.scrollIntoView({ behavior: "smooth" })
+                    ?.scrollIntoView()
                 }
               >
                 View catalog
               </button>
             </div>
-            <div className="hero-shape hero-shape-one" />
-            <div className="hero-shape hero-shape-two" />
-            <div className="hero-stamp">
+            <div className="hero-shape hero-shape-one" aria-hidden="true" />
+            <div className="hero-shape hero-shape-two" aria-hidden="true" />
+            <div className="hero-stamp" aria-hidden="true">
               <ShoppingBag size={32} />
               <span>
                 choose
@@ -157,7 +156,7 @@ export function Catalog({
                 with pleasure
               </span>
             </div>
-            <div className="hero-label">
+            <div className="hero-label" aria-hidden="true">
               GOOD THINGS
               <br />
               <b>NEAR.</b>
@@ -348,11 +347,11 @@ export function Product({
             order.
           </div>
           <h3>About the product</h3>
-          <p className="description-text">{p.description}</p>
+          <Description text={p.description} />
           {p.store_description && (
             <>
               <h3>About the store</h3>
-              <p className="description-text">{p.store_description}</p>
+              <Description text={p.store_description} />
             </>
           )}
         </div>
@@ -445,7 +444,7 @@ export function Storefront({ data, go, favorites, toggleFavorite, add }) {
         <span className="eyebrow">STORE AT ANTITRUMP</span>
         <h1>{data.store.name}</h1>
         {data.store.description && (
-          <p className="description-text">{data.store.description}</p>
+          <Description text={data.store.description} />
         )}
       </div>
       <div className="section-heading">

@@ -68,7 +68,11 @@ export function Header({ go, user, search, setSearch, count, favoriteCount }) {
           <NavLink page="catalog" go={go} className="brand">
             antitrump<span>.</span>
           </NavLink>
-          <button className="catalog-button" onClick={() => go("catalog")}>
+          <button
+            className="catalog-button"
+            aria-label="Catalog"
+            onClick={() => go("catalog")}
+          >
             <Menu size={20} />
             <span>Catalog</span>
           </button>
